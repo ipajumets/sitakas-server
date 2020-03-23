@@ -1,5 +1,4 @@
 let mongoose = require("mongoose");
-let server = require("../../Server");
 
 const Cards = require("../models/cards");
 
@@ -27,7 +26,6 @@ exports.get_my_cards = (req, res) => {
         .catch(err => console.log(err));
 
 }
-
 
 exports.divide_cards = (req, res) => {
 

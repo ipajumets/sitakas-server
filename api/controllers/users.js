@@ -67,45 +67,54 @@ exports.join_room = (req, res) => {
 
 exports.check_my_waiting_status = (req, res) => {
 
-    Users.findOne({ browser_id: req.body.id, room_code: req.body.code })
-        .select("_id browser_id room_code name points active")
+    Rooms.findOne({ code: req.body.code })
+        .select("_id code host_browser_id state")
         .exec()
-        .then(doc => {
-            if (doc) {
+        .then(room => {
 
-                Users.find({ room_code: req.body.code })
+            if (room) {
+
+                Users.findOne({ browser_id: req.body.id, room_code: req.body.code })
                     .select("_id browser_id room_code name points active")
                     .exec()
-                    .then(players => {
+                    .then(doc => {
+                        if (doc) {
 
-                        Rooms.findOne({ code: req.body.code })
-                            .select("_id code host_browser_id state")
-                            .exec()
-                            .then(room => {
-                                res.status(201).json({
-                                    success: true,
-                                    user: doc,
-                                    room: room,
-                                    players: players,
-                                });
-                            })
-                            .catch(err => console.log(err));
+                            Users.find({ room_code: req.body.code })
+                                .select("_id browser_id room_code name points active")
+                                .exec()
+                                .then(players => {
 
+                                    res.status(201).json({
+                                        room: room,
+                                        user: doc,
+                                        players: players,
+                                    });
+
+                                })
+                                .catch(err => console.log(err));
+
+                        } else {
+                            res.status(201).json({
+                                room: room,
+                            });
+                        }
                     })
-                    .catch(err => console.log(err));
+                    .catch(err => {
+                        res.status(403).json({
+                            success: false,
+                            err: err,
+                        });
+                    });
 
             } else {
                 res.status(201).json({
-                    success: false,
+                    room: null,
                 });
             }
+
         })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
+        .catch(err => console.log(err));
 
 }
 
