@@ -2,7 +2,6 @@ let mongoose = require("mongoose");
 
 // Models
 const Rooms = require("../models/rooms");
-const Users = require("../models/users");
 
 // Get all rooms
 exports.return_all = (req, res) => {
@@ -42,6 +41,65 @@ exports.change_room_state = (req, res, next) => {
         });
 
 }
+
+// Get room data
+exports.get_room_data = (req, res, next) => {
+
+    Rooms.findOne({ code: req.body.code })
+        .select("_id code host_browser_id state")
+        .exec()
+        .then(room => {
+            if (room) {
+                req.body.room = {
+                    _id: room._id,
+                    code: room.code,
+                    host_browser_id: room.host_browser_id,
+                    state: room.state,
+                };
+                next();
+            } else {
+                res.status(201).json({
+                    room: null,
+                });
+            }
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

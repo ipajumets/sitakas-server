@@ -258,6 +258,25 @@ exports.deck_of_cards = [
     },
 ];
 
+exports.trumps = [
+    {
+        value: 1,
+        suit: "hearts",
+    },
+    {
+        value: 1,
+        suit: "clubs",
+    },
+    {
+        value: 1,
+        suit: "spades",
+    },
+    {
+        value: 1,
+        suit: "diamonds",
+    },
+];
+
 // Profile images
 exports.images_1_player = [
     "https://i.imgur.com/wtwBZhy.jpg",

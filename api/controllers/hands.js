@@ -28,21 +28,32 @@ exports.return_all = (req, res) => {
 }
 
 // Get one hand
-exports.get_hand = (req, res) => {
+exports.get_hand = (req, res, next) => {
 
-    Hands.findOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand })
+    Hands.findOne({ room_code: req.body.code, round: req.body.game.round, hand: req.body.game.hand })
         .select("_id room_code round hand cards winner base")
         .exec()
         .then(hand => {
-            res.status(201).json({
-                _id: hand._id,
-                room_code: hand.room_code,
-                round: hand.round,
-                hand: hand.hand,
-                cards: hand.cards,
-                winner: hand.winner,
-                base: hand.base,
-            });
+            if (hand) {
+                req.body.hand = {
+                    _id: hand._id,
+                    room_code: hand.room_code,
+                    round: hand.round,
+                    hand: hand.hand,
+                    cards: hand.cards,
+                    winner: hand.winner,
+                    base: hand.base,
+                };
+                next();
+            } else {
+                res.status(201).json({
+                    room: req.body.room,
+                    user: req.body.user,
+                    game: req.body.game,
+                    round: req.body.round,
+                    hand: null,
+                });
+            }
         })
         .catch(err => console.log(err));
 
@@ -86,206 +97,59 @@ exports.create_hands = (req, res, next) => {
 
 }
 
+// Add card on the table
+exports.add_card = (req, res, next) => {
 
+    let card = { uid: req.body.uid, value: req.body.value, suit: req.body.suit },
+        action = req.body.first ? { $set: { base: card }, $addToSet: { cards: card } } : { $addToSet: { cards: card } };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.add_card = (req, res) => {
-
-    let card = { uid: req.body.uid, value: req.body.value, suit: req.body.suit };
-
-    if (req.body.first) {
-
-        Hands.updateOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand }, { $set: { base: card }, $addToSet: { cards: card } })
-            .exec()
-            .then(_ => {
-                Games.updateOne({ room_code: req.body.code }, { $set: { turn: req.body.next_uid, action: "call" } })
-                    .exec()
-                    .then(_ => {
-                        Cards.updateOne({ room_code: req.body.code, uid: req.body.uid, round: req.body.round }, { $pull: { active: { value: req.body.value, suit: req.body.suit } }, $addToSet: { not_active: { value: req.body.value, suit: req.body.suit } } })
-                            .then(_ => {
-                                server.io.emit(`${req.body.code}_card_added`, {
-                                    uid: req.body.next_uid,
-                                    action: "call",
-                                    card: card,
-                                });
-                                res.status(201).json({
-                                    success: true,
-                                });
-                            })
-                            .catch(err => console.log(err));
-                    })
-                    .catch(err => console.log(err));
-
-            })
-            .catch(err => console.log(err));
-
-    } else {
-
-        Hands.updateOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand }, { $addToSet: { cards: card } })
-            .exec()
-            .then(_ => {
-                Games.updateOne({ room_code: req.body.code }, { $set: { turn: req.body.next_uid, action: "call" } })
-                    .exec()
-                    .then(_ => {
-                        Cards.updateOne({ room_code: req.body.code, uid: req.body.uid, round: req.body.round }, { $pull: { active: { value: req.body.value, suit: req.body.suit } }, $addToSet: { not_active: { value: req.body.value, suit: req.body.suit } } })
-                            .then(_ => {
-                                server.io.emit(`${req.body.code}_card_added`, {
-                                    uid: req.body.next_uid,
-                                    action: "call",
-                                    card: card,
-                                });
-                                res.status(201).json({
-                                    success: true,
-                                });
-                            })
-                            .catch(err => console.log(err));
-                    })
-                    .catch(err => console.log(err));
-
-            })
-            .catch(err => console.log(err));
-
-    }
+    Hands.updateOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand }, action)
+        .exec()
+        .then(_ => {
+            server.io.emit(`${req.body.code}_card_added`, {
+                uid: req.body.next_uid,
+                action: "call",
+                card: card,
+            });
+            next();
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
 
 }
 
+// Add last card of the hand
 exports.add_last_card = (req, res, next) => {
 
-    let isLastRound = is_last_round(req.body.round, req.body.hand);
+    let winner = { uid: req.body.winner.uid, value: req.body.winner.value, suit: req.body.winner.suit },
+        card = { uid: req.body.uid, value: req.body.value, suit: req.body.suit },
+        rounds = globalHelpers.getGameRoundsStructure(req.body.players.length);
 
-    if (isLastRound) {
-
-        let winner = { uid: req.body.winner.uid, value: req.body.winner.value, suit: req.body.winner.suit },
-            card = { uid: req.body.uid, value: req.body.value, suit: req.body.suit };
-
-        Hands.updateOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand }, { $set: { winner: winner }, $addToSet: { cards: card } })
-            .exec()
-            .then(_ => {
-                Cards.updateOne({ room_code: req.body.code, uid: req.body.uid, round: req.body.round }, { $pull: { active: { value: req.body.value, suit: req.body.suit } }, $addToSet: { not_active: { value: req.body.value, suit: req.body.suit } } })
-                    .then(_ => {
-
-                        Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $set: { results: req.body.results } })
-                            .exec()
-                            .then(_ => {
-
-                                server.io.emit(`${req.body.code}_hand_winner`, {
-                                    card: card,
-                                    winner: winner,
-                                });
-
-                                Games.findOne({ room_code: req.body.code })
-                                    .select("_id players")
-                                    .exec()
-                                    .then(g => {
-
-                                        let p = g.players.map(s => {
-                                            return {
-                                                uid: s.uid,
-                                                name: s.name,
-                                                image: s.image,
-                                                points: s.points,
-                                            };
-                                        });
-
-                                        let updated_players = sumPoints(req.body.results, p);
-
-                                        Games.updateOne({ room_code: req.body.code }, { $set: { players: updated_players, round: req.body.round+1, hand: 1, dealer: req.body.next_dealer, turn: req.body.next_uid, action: req.body.next_action } })
-                                            .exec()
-                                            .then(_ => {
-
-                                                next();
-
-                                            })
-                                            .catch(err => console.log(err));
-
-                                    })
-                                    .catch(err => console.log(err));
-
-                            })
-                            .catch(err => console.log(err));
-
-                    })
-                    .catch(err => console.log(err));
-
-            })
-            .catch(err => console.log(err));
-
-    } else {
-
-        let winner = { uid: req.body.winner.uid, value: req.body.winner.value, suit: req.body.winner.suit },
-            card = { uid: req.body.uid, value: req.body.value, suit: req.body.suit };
-
-        Hands.updateOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand }, { $set: { winner: winner }, $addToSet: { cards: card } })
-            .exec()
-            .then(_ => {
-                Cards.updateOne({ room_code: req.body.code, uid: req.body.uid, round: req.body.round }, { $pull: { active: { value: req.body.value, suit: req.body.suit } }, $addToSet: { not_active: { value: req.body.value, suit: req.body.suit } } })
-                    .then(_ => {
-
-                        Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $set: { results: req.body.results } })
-                            .exec()
-                            .then(_ => {
-
-                                server.io.emit(`${req.body.code}_hand_winner`, {
-                                    card: card,
-                                    winner: winner,
-                                });
-
-                                Games.updateOne({ room_code: req.body.code }, { $set: { hand: req.body.hand+1, turn: req.body.next_uid, action: req.body.next_action } })
-                                    .exec()
-                                    .then(_ => {
-
-                                        setTimeout(() => {
-                                            server.io.emit(`${req.body.code}_next_hand`, {
-                                                code: req.body.code,
-                                            });
-                                        }, 1500);
-
-                                        res.status(201).json({
-                                            success: true,
-                                        });
-
-                                    })
-                                    .catch(err => console.log(err));
-
-                            })
-                            .catch(err => console.log(err));
-
-                    })
-                    .catch(err => console.log(err));
-
-            })
-            .catch(err => console.log(err));
-
-    }
+        req.body.isLastHandOfTheRound = handsHelpers.isLastHandOfTheRound(req.body.round, req.body.hand, rounds);
+    
+    Hands.updateOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand }, { $set: { winner: winner }, $addToSet: { cards: card } })
+        .exec()
+        .then(_ => {
+            server.io.emit(`${req.body.code}_last_card_added`, {
+                card: card,
+                winner: winner,
+            });
+            next();
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
 
 }
 
 // Create new round
-
 exports.create_new_round = (req, res, next) => {
 
     let round = new Rounds({
@@ -311,7 +175,6 @@ exports.create_new_round = (req, res, next) => {
 }
 
 // Divide first round cards
-
 exports.divide_cards = (req, res) => {
 
     let deck;
@@ -379,47 +242,6 @@ exports.divide_cards = (req, res) => {
                 .catch(err => console.log(err));
 
         });
-
-}
-
-// Determine if last round
-
-function is_last_round(round, hand) {
-
-    let amount = rounds.filter(r => r.round === round)[0].amount;
-
-    return hand === amount ? true : false;
-
-}
-
-// Make points
-
-function sumPoints(results, players) {
-
-    let newPoints = players.map(player => {
-        return {
-            ...player,
-            points: addPoints(player.uid, player.points, results),
-        }
-    });
-
-    return newPoints;
-
-}
-
-function addPoints(uid, points, results) {
-
-    let find = results.filter(result => {
-        return result.uid === uid;
-    });
-
-    let user = find[0];
-
-    if (user.wins === user.won) {
-        return points+user.won+5;
-    } else {
-        return points+user.won;
-    }
 
 }
 

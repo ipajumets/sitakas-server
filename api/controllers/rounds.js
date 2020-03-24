@@ -3,7 +3,6 @@ let server = require("../../Server");
 
 // Models
 const Rounds = require("../models/rounds");
-const Games = require("../models/games");
 
 // Get all rounds
 exports.return_all = (req, res) => {
@@ -21,18 +20,28 @@ exports.return_all = (req, res) => {
 }
 
 // Get one round
-exports.get_round = (req, res) => {
+exports.get_round = (req, res, next) => {
 
-    Rounds.findOne({ room_code: req.body.code, round: req.body.round })
+    Rounds.findOne({ room_code: req.body.code, round: req.body.game.round })
         .select("_id room_code results round")
         .exec()
         .then(round => {
-            res.status(201).json({
-                _id: round._id,
-                room_code: round.room_code,
-                results: round.results,
-                round: round.round,
-            });
+            if (round) {
+                req.body.round = {
+                    _id: round._id,
+                    room_code: round.room_code,
+                    results: round.results,
+                    round: round.round,
+                };
+                next();
+            } else {
+                res.status(201).json({
+                    room: req.body.room,
+                    user: req.body.user,
+                    game: req.body.game,
+                    round: null,
+                });
+            }
         })
         .catch(err => console.log(err));
 
@@ -61,76 +70,40 @@ exports.create_round = (req, res, next) => {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Add bet
-exports.add_bet = (req, res) => {
+exports.add_bet = (req, res, next) => {
 
-    Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $addToSet: { results: { uid: req.body.uid, wins: req.body.wins, won: 0 } } })
+    let bet = { uid: req.body.uid, wins: req.body.wins, won: 0 };
+
+    Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $addToSet: { results: bet } })
         .exec()
         .then(_ => {
 
-            if (req.body.last) {
+            server.io.emit(`${req.body.code}_bet_added`, {
+                uid: req.body.next_uid,
+                action: req.body.next_action,
+                bet: bet,
+            });
 
-                Games.updateOne({ room_code: req.body.code }, { $set: { turn: req.body.next_uid, action: "call" } })
-                    .exec()
-                    .then(_ => {
+            next();
+        })
+        .catch(err => console.log(err));
 
-                        server.io.emit(`${req.body.code}_bet_added`, {
-                            uid: req.body.next_uid,
-                            action: "call",
-                            bet: { uid: req.body.uid, wins: req.body.wins, won: 0 },
-                        });
+}
 
-                        res.status(201).json({
-                            success: true,
-                        });
+// Add bet
+exports.update_results = (req, res, next) => {
 
-                    })
-                    .catch(err => console.log(err));
+    Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $set: { results: req.body.results } })
+        .exec()
+        .then(_ => {
 
-            } else {
+            server.io.emit(`${req.body.code}_update_results`, {
+                data: req.body.results,
+            });
 
-                Games.updateOne({ room_code: req.body.code }, { $set: { turn: req.body.next_uid } })
-                    .exec()
-                    .then(_ => {
-
-                        server.io.emit(`${req.body.code}_bet_added`, {
-                            uid: req.body.next_uid,
-                            action: "guess",
-                            bet: { uid: req.body.uid, wins: req.body.wins, won: 0 },
-                        });
-
-                        res.status(201).json({
-                            success: true,
-                        });
-
-                    })
-                    .catch(err => console.log(err));
-
-            }
-
+            next();
+            
         })
         .catch(err => console.log(err));
 

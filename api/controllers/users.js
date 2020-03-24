@@ -1,9 +1,11 @@
 let mongoose = require("mongoose");
 let server = require("../../Server");
 
+// Models
 const Users = require("../models/users");
 const Rooms = require("../models/rooms");
 
+// Get all users
 exports.return_all = (req, res) => {
 
     Users.find()
@@ -25,6 +27,7 @@ exports.return_all = (req, res) => {
 
 }
 
+// Join room
 exports.join_room = (req, res) => {
 
     let user = new Users({
@@ -65,6 +68,64 @@ exports.join_room = (req, res) => {
 
 }
 
+// Leave room
+exports.leave_room = (req, res) => {
+
+    Users.deleteOne({ browser_id: req.body.id, room_code: req.params.code })
+        .exec()
+        .then(_ => {
+
+            server.io.emit(`${req.params.code}_left`, {
+                data: {
+                    id: req.body.id,
+                }
+            });
+
+            res.status(201).json({
+                success: true,
+            });
+
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
+
+}
+
+// Check if player is in this room?
+exports.check_if_player = (req, res, next) => {
+
+    Users.findOne({ room_code: req.body.code, browser_id: req.body.browser_id })
+        .select("_id browser_id room_code name")
+        .exec()
+        .then(user => {
+            if (user) {
+                req.body.user = {
+                    _id: user._id,
+                    browser_id: user.browser_id,
+                    name: user.name,
+                };
+                next();
+            } else {
+                res.status(201).json({
+                    room: req.body.room,
+                    user: null,
+                });
+            }
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
+
+}
+
+// Check my status
 exports.check_my_waiting_status = (req, res) => {
 
     Rooms.findOne({ code: req.body.code })
@@ -155,32 +216,6 @@ exports.get_players = (req, res) => {
                 success: true,
                 data: docs,
             });
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
-exports.leave_room = (req, res) => {
-
-    Users.deleteOne({ browser_id: req.body.id, room_code: req.params.code })
-        .exec()
-        .then(_ => {
-
-            server.io.emit(`${req.params.code}_left`, {
-                data: {
-                    id: req.body.id,
-                }
-            });
-
-            res.status(201).json({
-                success: true,
-            });
-
         })
         .catch(err => {
             res.status(403).json({

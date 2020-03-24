@@ -11,3 +11,12 @@ exports.createHands = (round, rounds) => {
     return arr;
 
 }
+
+// Is this last hand of the round?
+exports.isLastHandOfTheRound = (round, hand, rounds) => {
+
+    let amount = rounds.filter(r => r.round === round)[0].amount;
+
+    return hand === amount;
+
+}

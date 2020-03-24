@@ -17,3 +17,33 @@ exports.getRandomImage = (index) => {
     }
  
 }
+
+// Sum player points after round ends
+exports.sumPoints = (results, players) => {
+
+    let newPoints = players.map(player => {
+        return {
+            ...player,
+            points: addPoints(player.uid, player.points, results),
+        }
+    });
+
+    return newPoints;
+
+}
+
+let addPoints = (uid, points, results) => {
+
+    let find = results.filter(result => {
+        return result.uid === uid;
+    });
+
+    let user = find[0];
+
+    if (user.wins === user.won) {
+        return points+user.won+5;
+    } else {
+        return points+user.won;
+    }
+
+}
