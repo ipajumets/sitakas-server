@@ -1,9 +1,11 @@
 let mongoose = require("mongoose");
 let server = require("../../Server");
 
+// Models
 const Rounds = require("../models/rounds");
 const Games = require("../models/games");
 
+// Get all rounds
 exports.return_all = (req, res) => {
 
     Rounds.find()
@@ -18,18 +20,26 @@ exports.return_all = (req, res) => {
 
 }
 
+// Get one round
 exports.get_round = (req, res) => {
 
     Rounds.findOne({ room_code: req.body.code, round: req.body.round })
+        .select("_id room_code results round")
         .exec()
         .then(round => {
-            res.status(201).json(round);
+            res.status(201).json({
+                _id: round._id,
+                room_code: round.room_code,
+                results: round.results,
+                round: round.round,
+            });
         })
         .catch(err => console.log(err));
 
 }
 
-exports.create_round = (req, res) => {
+// Create new round
+exports.create_round = (req, res, next) => {
 
     let round = new Rounds({
         _id: new mongoose.Types.ObjectId(),
@@ -39,10 +49,8 @@ exports.create_round = (req, res) => {
     });
 
     round.save()
-        .then(added_round => {
-
-            res.status(201).json(added_round);
-
+        .then(_ => {
+            next();
         })
         .catch(err => {
             res.status(403).json({
@@ -53,8 +61,30 @@ exports.create_round = (req, res) => {
 
 }
 
-// Add bet
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Add bet
 exports.add_bet = (req, res) => {
 
     Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $addToSet: { results: { uid: req.body.uid, wins: req.body.wins, won: 0 } } })

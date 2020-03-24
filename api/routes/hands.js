@@ -9,8 +9,6 @@ router.post("/get-hand", controller.get_hand);
 
 router.post("/add-card", controller.add_card);
 
-router.post("/add-last-card", controller.add_last_card, controller.create_new_round, controller.create_new_hands, controller.divide_cards);
-
-/* router.post("/create-round", controller.create_round); */
+// router.post("/add-last-card", controller.add_last_card, controller.create_new_round, controller.create_new_hands, controller.divide_cards);
 
 module.exports = router;

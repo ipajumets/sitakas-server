@@ -1,14 +1,21 @@
 let mongoose = require("mongoose");
 let server = require("../../Server");
 
-const Hands = require("../models/hands");
-const Games = require("../models/games");
-const Rounds = require("../models/rounds");
-const Cards = require("../models/cards");
+// Models
+let Hands = require("../models/hands");
+let Games = require("../models/games");
+let Rounds = require("../models/rounds");
+let Cards = require("../models/cards");
 
+//  Helpers
+let globalHelpers = require("../../helpers/global");
+let handsHelpers = require("../../helpers/hands");
+
+// Get all hands
 exports.return_all = (req, res) => {
 
     Hands.find()
+        .select("_id room_code round hand cards winner base")
         .exec()
         .then(hands => {
             res.status(201).json({
@@ -20,6 +27,7 @@ exports.return_all = (req, res) => {
 
 }
 
+// Get one hand
 exports.get_hand = (req, res) => {
 
     Hands.findOne({ room_code: req.body.code, round: req.body.round, hand: req.body.hand })
@@ -39,6 +47,71 @@ exports.get_hand = (req, res) => {
         .catch(err => console.log(err));
 
 }
+
+// Create new hands
+exports.create_hands = (req, res, next) => {
+
+    let rounds = globalHelpers.getGameRoundsStructure(req.body.players.length),
+        arr = handsHelpers.createHands(req.body.round, rounds);
+
+    let promises = arr.map(a => {
+
+        let hand = new Hands({
+            _id: new mongoose.Types.ObjectId(),
+            room_code: req.body.code,
+            round: req.body.round,
+            hand: a,
+            cards: [],
+            base: null,
+            winner: null,
+        });
+    
+        return hand.save()
+            .then(_ => {
+                return;
+            })
+            .catch(err => {
+                res.status(403).json({
+                    success: false,
+                    err: err,
+                });
+            });
+
+    });
+
+    Promise.all(promises)
+        .then(_ => {
+            next();
+        });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 exports.add_card = (req, res) => {
 
@@ -237,46 +310,6 @@ exports.create_new_round = (req, res, next) => {
 
 }
 
-// Create new hands
-
-exports.create_new_hands = (req, res, next) => {
-
-    let arr = createHands(req.body.round+1);
-
-    console.log("Array:", arr)
-
-    let promises = arr.map(a => {
-
-        let hand = new Hands({
-            _id: new mongoose.Types.ObjectId(),
-            room_code: req.body.code,
-            round: req.body.round+1,
-            hand: a,
-            cards: [],
-            base: null,
-            winner: null,
-        });
-    
-        return hand.save()
-            .then(_ => {
-                return;
-            })
-            .catch(err => {
-                res.status(403).json({
-                    success: false,
-                    err: err,
-                });
-            });
-
-    });
-
-    Promise.all(promises)
-        .then(_ => {
-            next();
-        });
-
-}
-
 // Divide first round cards
 
 exports.divide_cards = (req, res) => {
@@ -346,19 +379,6 @@ exports.divide_cards = (req, res) => {
                 .catch(err => console.log(err));
 
         });
-
-}
-
-function createHands(round) {
-
-    let arr = [];
-    let hands = rounds.filter(r => r.round === round)[0].amount;
-
-    for (var i = 1; i <= hands; i++) {
-        arr = [...arr, i];
-    }
-
-    return arr;
 
 }
 

@@ -1,8 +1,10 @@
 let mongoose = require("mongoose");
 
+// Models
 const Rooms = require("../models/rooms");
 const Users = require("../models/users");
 
+// Get all rooms
 exports.return_all = (req, res) => {
 
     Rooms.find()
@@ -24,15 +26,13 @@ exports.return_all = (req, res) => {
 
 }
 
-exports.change_state = (req, res) => {
+// Change room state
+exports.change_room_state = (req, res, next) => {
 
-    Rooms.updateOne({ code: req.params.code }, { $set: { state: req.body.state } })
+    Rooms.updateOne({ code: req.body.code }, { $set: { state: req.body.state } })
         .exec()
-        .then(result => {
-            res.status(201).json({
-                success: true,
-                data: result,
-            });
+        .then(_ => {
+            next();
         })
         .catch(err => {
             res.status(403).json({
@@ -42,6 +42,8 @@ exports.change_state = (req, res) => {
         });
 
 }
+
+
 
 exports.check = (req, res) => {
 
@@ -84,28 +86,6 @@ exports.create_new_room = (req, res) => {
             res.status(201).json({
                 success: true,
                 data: added,
-            });
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
-exports.onboarding = (req, res) => {
-
-    console.log(req.body.id);
-
-    Users.find({ room_code: req.params.code })
-        .select("_id browser_id room_code name points active")
-        .exec()
-        .then(result => {
-            res.status(201).json({
-                success: true,
-                data: result,
             });
         })
         .catch(err => {
