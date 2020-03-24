@@ -1,3 +1,123 @@
+// Rounds for 3 players
+exports.rounds_3_players = [
+    {
+        round: 1,
+        amount: 1,
+    },
+    {
+        round: 2,
+        amount: 1,
+    },
+    {
+        round: 3,
+        amount: 1,
+    },
+    {
+        round: 4,
+        amount: 2,
+    },
+    {
+        round: 5,
+        amount: 3,
+    },
+    {
+        round: 6,
+        amount: 4,
+    },
+    {
+        round: 7,
+        amount: 5,
+    },
+    {
+        round: 8,
+        amount: 6,
+    },
+    {
+        round: 9,
+        amount: 7,
+    },
+    {
+        round: 10,
+        amount: 8,
+    },
+    {
+        round: 11,
+        amount: 9,
+    },
+    {
+        round: 12,
+        amount: 10,
+    },
+    {
+        round: 13,
+        amount: 11,
+    },
+    {
+        round: 14,
+        amount: 12,
+    },
+    {
+        round: 15,
+        amount: 12,
+    },
+    {
+        round: 16,
+        amount: 12,
+    },
+    {
+        round: 17,
+        amount: 11,
+    },
+    {
+        round: 18,
+        amount: 10,
+    },
+    {
+        round: 19,
+        amount: 9,
+    },
+    {
+        round: 20,
+        amount: 8,
+    },
+    {
+        round: 21,
+        amount: 7,
+    },
+    {
+        round: 22,
+        amount: 6,
+    },
+    {
+        round: 23,
+        amount: 5,
+    },
+    {
+        round: 24,
+        amount: 4,
+    },
+    {
+        round: 25,
+        amount: 3,
+    },
+    {
+        round: 26,
+        amount: 2,
+    },
+    {
+        round: 27,
+        amount: 1,
+    },
+    {
+        round: 28,
+        amount: 1,
+    },
+    {
+        round: 29,
+        amount: 1,
+    },
+];
+
 // Rounds for 4 players
 exports.rounds_4_players = [
     {

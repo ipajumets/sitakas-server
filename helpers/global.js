@@ -7,7 +7,7 @@ exports.getGameRoundsStructure = (playersLength) => {
     switch (playersLength) {
 
         case 3:
-            return "";
+            return constants.rounds_3_players;
         case 4:
             return constants.rounds_4_players;
         case 5:
