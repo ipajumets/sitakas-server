@@ -226,6 +226,110 @@ exports.rounds_4_players = [
     },
 ];
 
+// Rounds for 5 players
+exports.rounds_5_players = [
+    {
+        round: 1,
+        amount: 1,
+    },
+    {
+        round: 2,
+        amount: 1,
+    },
+    {
+        round: 3,
+        amount: 1,
+    },
+    {
+        round: 4,
+        amount: 1,
+    },
+    {
+        round: 5,
+        amount: 1,
+    },
+    {
+        round: 6,
+        amount: 2,
+    },
+    {
+        round: 7,
+        amount: 3,
+    },
+    {
+        round: 8,
+        amount: 4,
+    },
+    {
+        round: 9,
+        amount: 5,
+    },
+    {
+        round: 10,
+        amount: 6,
+    },
+    {
+        round: 11,
+        amount: 7,
+    },
+    {
+        round: 12,
+        amount: 7,
+    },
+    {
+        round: 13,
+        amount: 7,
+    },
+    {
+        round: 14,
+        amount: 7,
+    },
+    {
+        round: 15,
+        amount: 7,
+    },
+    {
+        round: 16,
+        amount: 6,
+    },
+    {
+        round: 17,
+        amount: 5,
+    },
+    {
+        round: 18,
+        amount: 4,
+    },
+    {
+        round: 19,
+        amount: 3,
+    },
+    {
+        round: 20,
+        amount: 2,
+    },
+    {
+        round: 21,
+        amount: 1,
+    },
+    {
+        round: 22,
+        amount: 1,
+    },
+    {
+        round: 23,
+        amount: 1,
+    },
+    {
+        round: 24,
+        amount: 1,
+    },
+    {
+        round: 25,
+        amount: 1,
+    },
+];
+
 // Deck of cards
 exports.deck_of_cards = [
     {
@@ -428,4 +532,12 @@ exports.images_4_player = [
     "https://i.imgur.com/yBodMJH.jpg",
     "https://i.imgur.com/HzH2eBI.jpg",
     "https://i.imgur.com/53XdKq5.jpg",
+];
+
+exports.images_5_player = [
+    "https://i.imgur.com/u4dY6Qx.jpg",
+    "https://i.imgur.com/zErLsxE.jpg",
+    "https://i.imgur.com/yJxlyAB.jpg",
+    "https://i.imgur.com/NSkLM3r.jpg",
+    "https://i.imgur.com/LV61xFF.jpg",
 ];
