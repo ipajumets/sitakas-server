@@ -46,6 +46,7 @@ exports.get_my_cards = (req, res) => {
                     user: req.body.user,
                     game: req.body.game,
                     round: req.body.round,
+                    previousHand: req.body.previousHand,
                     hand: req.body.hand,
                     myCards: req.body.myCards,
                 });
@@ -55,6 +56,7 @@ exports.get_my_cards = (req, res) => {
                     user: req.body.user,
                     game: req.body.game,
                     round: req.body.round,
+                    previousHand: req.body.previousHand,
                     hand: req.body.hand,
                     myCards: null,
                 });

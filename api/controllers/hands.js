@@ -59,6 +59,53 @@ exports.get_hand = (req, res, next) => {
 
 }
 
+// Get one hand
+exports.get_previous_hand = (req, res, next) => {
+
+    Hands.findOne({ room_code: req.body.code, round: req.body.game.round, hand: req.body.game.hand-1 })
+        .select("_id room_code round hand cards winner base")
+        .exec()
+        .then(hand => {
+            if (hand) {
+                req.body.previousHand = {
+                    _id: hand._id,
+                    room_code: hand.room_code,
+                    round: hand.round,
+                    hand: hand.hand,
+                    cards: hand.cards,
+                    winner: hand.winner,
+                    base: hand.base,
+                };
+                next();
+            } else {
+
+                Hands.findOne({ room_code: req.body.code, round: req.body.game.round-1 }).sort({ $natural: -1})
+                    .select("_id room_code round hand cards winner base")
+                    .exec()
+                    .then(hand => {
+                        if (hand) {
+                            req.body.previousHand = {
+                                _id: hand._id,
+                                room_code: hand.room_code,
+                                round: hand.round,
+                                hand: hand.hand,
+                                cards: hand.cards,
+                                winner: hand.winner,
+                                base: hand.base,
+                            };
+                            next();
+                        } else {
+                            req.body.previousHand = null;
+                            next();
+                        }
+                    })
+                    .catch(err => console.log(err));
+            }
+        })
+        .catch(err => console.log(err));
+
+}
+
 // Create new hands
 exports.create_hands = (req, res, next) => {
 
