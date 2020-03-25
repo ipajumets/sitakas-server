@@ -164,16 +164,31 @@ exports.update_game_after_finishing_hand = (req, res, next) => {
         options = { $set: { players: updated_players, round: req.body.round+1, hand: 1, dealer: req.body.next_dealer, turn: req.body.next_uid, action: req.body.next_action } };
     } else {
         options = { $set: { hand: req.body.hand+1, turn: req.body.next_uid, action: req.body.next_action } };
-    }       
+    }
+
+    let isLast = isLastRoundOfTheGame(req.body.players.length, req.body.round+1);
 
     Games.updateOne({ room_code: req.body.code }, options)
         .exec()
         .then(_ => {
 
             if (req.body.isLastHandOfTheRound) {
-                req.body.round = req.body.round+1;
-                req.body.hand = 1;
-                next();
+                if (!isLast) {
+                    req.body.round = req.body.round+1;
+                    req.body.hand = 1;
+                    next();
+                } else {
+                    setTimeout(() => {
+                        server.io.emit(`${req.body.code}_game_over`, {
+                            code: req.body.code,
+                        });
+                    }, 3333);
+                    res.status(201).json({
+                        success: true,
+                        message: "Game over",
+                    });
+                }
+
             } else {
 
                 setTimeout(() => {
@@ -190,5 +205,23 @@ exports.update_game_after_finishing_hand = (req, res, next) => {
 
         })
         .catch(err => console.log(err));
+
+}
+
+let isLastRoundOfTheGame = (players, round) => {
+
+    if (players === 3 && round > 26) {
+        return true;
+    }
+
+    if (players === 4 && round > 29) {
+        return true;
+    }
+
+    if (players === 5 && round > 25) {
+        return true;
+    }
+
+    return false;
 
 }
