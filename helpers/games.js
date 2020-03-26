@@ -5,17 +5,17 @@ let constants = require("../constants");
 exports.getRandomImage = (index) => {
 
     if (index === 0) {
-        return constants.images_1_player[Math.floor(Math.random() * constants.images_1_player.length)];
+        return constants.images_1_player[Math.floor(Math.random() * constants.images_1_player.length)].image;
     } else if (index === 1) {
-        return constants.images_2_player[Math.floor(Math.random() * constants.images_2_player.length)];
+        return constants.images_2_player[Math.floor(Math.random() * constants.images_2_player.length)].image;
     } else if (index === 2) {
-        return constants.images_3_player[Math.floor(Math.random() * constants.images_3_player.length)];
+        return constants.images_3_player[Math.floor(Math.random() * constants.images_3_player.length)].image;
     } else if (index === 3) {
-        return constants.images_4_player[Math.floor(Math.random() * constants.images_4_player.length)];
+        return constants.images_4_player[Math.floor(Math.random() * constants.images_4_player.length)].image;
     } else if (index === 4) {
-        return constants.images_5_player[Math.floor(Math.random() * constants.images_5_player.length)];
+        return constants.images_5_player[Math.floor(Math.random() * constants.images_5_player.length)].image;
     } else {
-        return constants.images_1_player[Math.floor(Math.random() * constants.images_1_player.length)];
+        return constants.images_1_player[Math.floor(Math.random() * constants.images_1_player.length)].image;
     }
  
 }
