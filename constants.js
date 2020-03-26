@@ -503,41 +503,116 @@ exports.trumps = [
 
 // Profile images
 exports.images_1_player = [
-    "https://i.imgur.com/wtwBZhy.jpg",
-    "https://i.imgur.com/Wh1Slxo.jpg",
-    "https://i.imgur.com/aStfDCv.jpg",
-    "https://i.imgur.com/Atx0eSH.jpg",
-    "https://i.imgur.com/1C5lU1K.jpg",
+    {
+        name: "Aivar Kuusmaa",
+        image: "https://i.imgur.com/y4dxRW3.jpg",
+    },
+    {
+        name: "Gert Dorbek",
+        image: "https://i.imgur.com/Wh1Slxo.jpg",
+    },
+    {
+        name: "Gregor Arbet",
+        image: "https://i.imgur.com/tjLwGpM.jpg",
+    },
+    {
+        name: "Toomas Raadik",
+        image: "https://i.imgur.com/Gv4sbz2.jpg",
+    },
+    {
+        name: "Sten Sokk",
+        image: "https://i.imgur.com/1C5lU1K.jpg",
+    },
 ];
 
 exports.images_2_player = [
-    "https://i.imgur.com/XsIreZQ.jpg",
-    "https://i.imgur.com/Jfv555A.jpg",
-    "https://i.imgur.com/zA02Ayt.jpg",
-    "https://i.imgur.com/BdfcDd3.jpg",
-    "https://i.imgur.com/7XJNep1.jpg",
+    {
+        name: "Kristjan Kangur",
+        image: "https://i.imgur.com/clkiZVH.jpg",
+    },
+    {
+        name: "Martin Dorbek",
+        image: "https://i.imgur.com/JJh0Byx.jpg",
+    },
+    {
+        name: "Martin Müürsepp",
+        image: "https://i.imgur.com/p0MLNW3.jpg",
+    },
+    {
+        name: "Raido Ringmets",
+        image: "https://i.imgur.com/OZhT7kw.jpg",
+    },
+    {
+        name: "Rain Veideman",
+        image: "https://i.imgur.com/atl4Uu7.jpg",
+    },
 ];
 
 exports.images_3_player = [
-    "https://i.imgur.com/lqFBpqZ.jpg",
-    "https://i.imgur.com/hUrVYmd.jpg",
-    "https://i.imgur.com/WaLUrQb.jpg",
-    "https://i.imgur.com/sFcZJEx.jpg",
-    "https://i.imgur.com/EbafOYv.jpg",
+    {
+        name: "Kristo Saage",
+        image: "https://i.imgur.com/Qbc4D5r.jpg",
+    },
+    {
+        name: "Rauno Pehka",
+        image: "https://i.imgur.com/WEOSAQ2.jpg",
+    },
+    {
+        name: "Reinar Hallik",
+        image: "https://i.imgur.com/5WwzWa2.jpg",
+    },
+    {
+        name: "Siim Vene",
+        image: "https://i.imgur.com/hSmwE9Q.jpg",
+    },
+    {
+        name: "Kristjan Kitsing",
+        image: "https://i.imgur.com/EbafOYv.jpg",
+    },
 ];
 
 exports.images_4_player = [
-    "https://i.imgur.com/QKGgFFf.jpg",
-    "https://i.imgur.com/LAU07FM.jpg",
-    "https://i.imgur.com/yBodMJH.jpg",
-    "https://i.imgur.com/HzH2eBI.jpg",
-    "https://i.imgur.com/53XdKq5.jpg",
+    {
+        name: "Valmo Kriisa",
+        image: "https://i.imgur.com/xsGyyzH.jpg",
+    },
+    {
+        name: "Vallo Allingu",
+        image: "https://i.imgur.com/Tv4UA9C.jpg",
+    },
+    {
+        name: "Tanel Tein",
+        image: "https://i.imgur.com/vWR1FHP.jpg",
+    },
+    {
+        name: "Janar Talts",
+        image: "https://i.imgur.com/W3P15ZH.jpg",
+    },
+    {
+        name: "Kristjan Kullamäe",
+        image: "https://i.imgur.com/53XdKq5.jpg",
+    },
 ];
 
 exports.images_5_player = [
-    "https://i.imgur.com/u4dY6Qx.jpg",
-    "https://i.imgur.com/zErLsxE.jpg",
-    "https://i.imgur.com/yJxlyAB.jpg",
-    "https://i.imgur.com/NSkLM3r.jpg",
-    "https://i.imgur.com/LV61xFF.jpg",
+    {
+        name: "Janari Jõesaar",
+        image: "https://i.imgur.com/zErLsxE.jpg",
+    },
+    {
+        name: "Margus Metstak",
+        image: "https://i.imgur.com/yJxlyAB.jpg",
+    },
+    {
+        name: "Rait Laane",
+        image: "https://i.imgur.com/NSkLM3r.jpg",
+    },
+    {
+        name: "Tanel Kurbas",
+        image: "https://i.imgur.com/LV61xFF.jpg",
+    },
+    {
+        name: "Rain Raadik",
+        image: "https://i.imgur.com/ZAVt7hQ.jpg",
+    },
 ];
