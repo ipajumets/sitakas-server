@@ -20,9 +20,35 @@ exports.return_all = (req, res) => {
 }
 
 // Get one round
+exports.get_previous_round = (req, res, next) => {
+
+    Rounds.findOne({ room_code: req.body.code, round: req.body.game.round-1 })
+        .select("_id room_code results round")
+        .exec()
+        .then(round => {
+            if (round) {
+                req.body.previousRound = {
+                    _id: round._id,
+                    room_code: round.room_code,
+                    results: round.results,
+                    round: round.round,
+                };
+                next();
+            } else {
+                req.body.previousRound = null;
+                next();
+            }
+        })
+        .catch(err => console.log(err));
+
+}
+
+// Get one round
 exports.get_round = (req, res, next) => {
 
-    Rounds.findOne({ room_code: req.body.code, round: req.body.game.round })
+    let gameOver = isGameOver(req.body.game.players.length, req.body.game.round);
+
+    Rounds.findOne({ room_code: req.body.code, round: gameOver ? req.body.game.round-1 : req.body.game.round })
         .select("_id room_code results round")
         .exec()
         .then(round => {
@@ -70,6 +96,31 @@ exports.create_round = (req, res, next) => {
 
 }
 
+// Create new round for bugs
+exports.create_new_round_for_bugs = (req, res, next) => {
+
+    let round = new Rounds({
+        _id: new mongoose.Types.ObjectId(),
+        room_code: req.body.code,
+        results: [],
+        round: req.body.round,
+    });
+
+    round.save()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
+
+}
+
 // Add bet
 exports.add_bet = (req, res, next) => {
 
@@ -106,5 +157,24 @@ exports.update_results = (req, res, next) => {
             
         })
         .catch(err => console.log(err));
+
+}
+
+// helpers
+let isGameOver = (players, round) => {
+
+    if (players === 3 && round > 29) {
+        return true;
+    }
+
+    if (players === 4 && round > 26) {
+        return true;
+    }
+
+    if (players === 5 && round > 25) {
+        return true;
+    }
+
+    return false;
 
 }

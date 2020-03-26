@@ -28,7 +28,9 @@ exports.get_all_cards = (req, res) => {
 // Get my cards
 exports.get_my_cards = (req, res) => {
 
-    Cards.findOne({ room_code: req.body.code, round: req.body.game.round, uid: req.body.user.browser_id })
+    let gameOver = isGameOver(req.body.game.players.length, req.body.game.round);
+
+    Cards.findOne({ room_code: req.body.code, round: gameOver ? req.body.game.round-1 : req.body.game.round, uid: req.body.user.browser_id })
         .select("_id room_code uid round active not_active")
         .exec()
         .then(card => {
@@ -41,21 +43,34 @@ exports.get_my_cards = (req, res) => {
                     active: card.active,
                     not_active: card.not_active,
                 };
+
                 res.status(201).json({
                     room: req.body.room,
                     user: req.body.user,
-                    game: req.body.game,
+                    game: {
+                        ...req.body.game,
+                        round: gameOver ? req.body.game.round-1 : req.body.game.round,
+                        over: gameOver,
+                    },
+                    previousRound: req.body.previousRound,
                     round: req.body.round,
                     previousHand: req.body.previousHand,
                     hand: req.body.hand,
                     myCards: req.body.myCards,
                 });
+
             } else {
                 res.status(201).json({
                     room: req.body.room,
                     user: req.body.user,
                     game: req.body.game,
+                    game: {
+                        ...req.body.game,
+                        round: gameOver ? req.body.game.round-1 : req.body.game.round,
+                        over: gameOver,
+                    },
                     round: req.body.round,
+                    previousRound: req.body.previousRound,
                     previousHand: req.body.previousHand,
                     hand: req.body.hand,
                     myCards: null,
@@ -131,4 +146,23 @@ exports.remove_card = (req, res, next) => {
         })
         .catch(err => console.log(err));
 
-}   
+}
+
+// helpers
+let isGameOver = (players, round) => {
+
+    if (players === 3 && round > 29) {
+        return true;
+    }
+
+    if (players === 4 && round > 26) {
+        return true;
+    }
+
+    if (players === 5 && round > 25) {
+        return true;
+    }
+
+    return false;
+
+}

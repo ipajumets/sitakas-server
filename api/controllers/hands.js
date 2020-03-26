@@ -14,7 +14,7 @@ let handsHelpers = require("../../helpers/hands");
 // Get all hands
 exports.return_all = (req, res) => {
 
-    Hands.find()
+    Hands.find({}).sort({ $natural: -1 }).limit(50)
         .select("_id room_code round hand cards winner base")
         .exec()
         .then(hands => {
@@ -30,7 +30,9 @@ exports.return_all = (req, res) => {
 // Get one hand
 exports.get_hand = (req, res, next) => {
 
-    Hands.findOne({ room_code: req.body.code, round: req.body.game.round, hand: req.body.game.hand })
+    let gameOver = isGameOver(req.body.game.players.length, req.body.game.round);
+
+    Hands.findOne({ room_code: req.body.code, round: gameOver ? req.body.game.round-1 : req.body.game.round, hand: req.body.game.hand })
         .select("_id room_code round hand cards winner base")
         .exec()
         .then(hand => {
@@ -103,6 +105,34 @@ exports.get_previous_hand = (req, res, next) => {
             }
         })
         .catch(err => console.log(err));
+
+}
+
+// Create new hand for bugs
+exports.create_new_hand = (req, res, next) => {
+
+    let hand = new Hands({
+        _id: new mongoose.Types.ObjectId(),
+        room_code: req.body.code,
+        round: req.body.round,
+        hand: req.body.hand,
+        cards: [],
+        base: null,
+        winner: null,
+    });
+
+    return hand.save()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
 
 }
 
@@ -292,6 +322,25 @@ exports.divide_cards = (req, res) => {
 
 }
 
+// helpers
+let isGameOver = (players, round) => {
+
+    if (players === 3 && round > 29) {
+        return true;
+    }
+
+    if (players === 4 && round > 26) {
+        return true;
+    }
+
+    if (players === 5 && round > 25) {
+        return true;
+    }
+
+    return false;
+
+}
+
 let shuffle = (cards, round) => {
 
     let pack;
@@ -327,7 +376,6 @@ let shuffle = (cards, round) => {
 }
 
 // Full card deck
-
 let full_deck = [
     {
         value: 6,

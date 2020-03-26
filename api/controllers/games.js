@@ -157,14 +157,17 @@ exports.set_next_turn = (req, res, next) => {
 // Update game object after finishing hand
 exports.update_game_after_finishing_hand = (req, res, next) => {
 
-    let options;
+    let options,
+        updated_players;
 
     if (req.body.isLastHandOfTheRound) {
-        let updated_players = helpers.sumPoints(req.body.results, req.body.players);
+        updated_players = helpers.sumPoints(req.body.results, req.body.players),
         options = { $set: { players: updated_players, round: req.body.round+1, hand: 1, dealer: req.body.next_dealer, turn: req.body.next_uid, action: req.body.next_action } };
     } else {
         options = { $set: { hand: req.body.hand+1, turn: req.body.next_uid, action: req.body.next_action } };
     }
+
+    console.log(updated_players);
 
     let isLast = isLastRoundOfTheGame(req.body.players.length, req.body.round+1);
 
@@ -210,11 +213,11 @@ exports.update_game_after_finishing_hand = (req, res, next) => {
 
 let isLastRoundOfTheGame = (players, round) => {
 
-    if (players === 3 && round > 26) {
+    if (players === 3 && round > 29) {
         return true;
     }
 
-    if (players === 4 && round > 29) {
+    if (players === 4 && round > 26) {
         return true;
     }
 
