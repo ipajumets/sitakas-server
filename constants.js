@@ -527,8 +527,8 @@ exports.images_1_player = [
 
 exports.images_2_player = [
     {
-        name: "Martin Dorbek",
-        image: "https://i.imgur.com/JJh0Byx.jpg",
+        name: "Rain Raadik",
+        image: "https://i.imgur.com/ZAVt7hQ.jpg",
     },
     {
         name: "Martin Müürsepp",
@@ -558,16 +558,16 @@ exports.images_3_player = [
         image: "https://i.imgur.com/WEOSAQ2.jpg",
     },
     {
-        name: "Siim Vene",
-        image: "https://i.imgur.com/hSmwE9Q.jpg",
-    },
-    {
         name: "Kristjan Kitsing",
         image: "https://i.imgur.com/EbafOYv.jpg",
     },
     {
         name: "Toomas Raadik",
         image: "https://i.imgur.com/Gv4sbz2.jpg",
+    },
+    {
+        name: "Margus Metstak",
+        image: "https://i.imgur.com/yJxlyAB.jpg",
     },
 ];
 
@@ -589,7 +589,7 @@ exports.images_4_player = [
         image: "https://i.imgur.com/W3P15ZH.jpg",
     },
     {
-        name: "Kristjan Kullamäe",
+        name: "Gert Kullamäe",
         image: "https://i.imgur.com/53XdKq5.jpg",
     },
 ];
@@ -600,10 +600,6 @@ exports.images_5_player = [
         image: "https://i.imgur.com/zErLsxE.jpg",
     },
     {
-        name: "Margus Metstak",
-        image: "https://i.imgur.com/yJxlyAB.jpg",
-    },
-    {
         name: "Kristjan Kangur",
         image: "https://i.imgur.com/clkiZVH.jpg",
     },
@@ -612,7 +608,11 @@ exports.images_5_player = [
         image: "https://i.imgur.com/LV61xFF.jpg",
     },
     {
-        name: "Rain Raadik",
-        image: "https://i.imgur.com/ZAVt7hQ.jpg",
+        name: "Martin Dorbek",
+        image: "https://i.imgur.com/JJh0Byx.jpg",
+    },
+    {
+        name: "Siim Vene",
+        image: "https://i.imgur.com/hSmwE9Q.jpg",
     },
 ];
