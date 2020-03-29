@@ -167,8 +167,6 @@ exports.update_game_after_finishing_hand = (req, res, next) => {
         options = { $set: { hand: req.body.hand+1, turn: req.body.next_uid, action: req.body.next_action } };
     }
 
-    console.log(updated_players);
-
     let isLast = isLastRoundOfTheGame(req.body.players.length, req.body.round+1);
 
     Games.updateOne({ room_code: req.body.code }, options)
@@ -222,6 +220,10 @@ let isLastRoundOfTheGame = (players, round) => {
     }
 
     if (players === 5 && round > 25) {
+        return true;
+    }
+
+    if (players === 6 && round > 26) {
         return true;
     }
 

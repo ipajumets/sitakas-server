@@ -14,6 +14,8 @@ exports.getRandomImage = (index) => {
         return constants.images_4_player[Math.floor(Math.random() * constants.images_4_player.length)].image;
     } else if (index === 4) {
         return constants.images_5_player[Math.floor(Math.random() * constants.images_5_player.length)].image;
+    } else if (index === 5) {
+        return constants.images_6_player[Math.floor(Math.random() * constants.images_6_player.length)].image;
     } else {
         return constants.images_1_player[Math.floor(Math.random() * constants.images_1_player.length)].image;
     }

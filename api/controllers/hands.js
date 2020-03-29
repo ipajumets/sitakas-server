@@ -337,6 +337,10 @@ let isGameOver = (players, round) => {
         return true;
     }
 
+    if (players === 6 && round > 26) {
+        return true;
+    }
+
     return false;
 
 }

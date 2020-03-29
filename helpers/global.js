@@ -13,7 +13,7 @@ exports.getGameRoundsStructure = (playersLength) => {
         case 5:
             return constants.rounds_5_players;
         case 6:
-            return "";
+            return constants.rounds_6_players;
         case 7:
             return "";
         default:

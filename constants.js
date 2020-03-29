@@ -330,6 +330,114 @@ exports.rounds_5_players = [
     },
 ];
 
+// Rounds for 6 players
+exports.rounds_6_players = [
+    {
+        round: 1,
+        amount: 1,
+    },
+    {
+        round: 2,
+        amount: 1,
+    },
+    {
+        round: 3,
+        amount: 1,
+    },
+    {
+        round: 4,
+        amount: 1,
+    },
+    {
+        round: 5,
+        amount: 1,
+    },
+    {
+        round: 6,
+        amount: 1,
+    },
+    {
+        round: 7,
+        amount: 2,
+    },
+    {
+        round: 8,
+        amount: 3,
+    },
+    {
+        round: 9,
+        amount: 4,
+    },
+    {
+        round: 10,
+        amount: 5,
+    },
+    {
+        round: 11,
+        amount: 6,
+    },
+    {
+        round: 12,
+        amount: 6,
+    },
+    {
+        round: 13,
+        amount: 6,
+    },
+    {
+        round: 14,
+        amount: 6,
+    },
+    {
+        round: 15,
+        amount: 6,
+    },
+    {
+        round: 16,
+        amount: 6,
+    },
+    {
+        round: 17,
+        amount: 5,
+    },
+    {
+        round: 18,
+        amount: 4,
+    },
+    {
+        round: 19,
+        amount: 3,
+    },
+    {
+        round: 20,
+        amount: 2,
+    },
+    {
+        round: 21,
+        amount: 1,
+    },
+    {
+        round: 22,
+        amount: 1,
+    },
+    {
+        round: 23,
+        amount: 1,
+    },
+    {
+        round: 24,
+        amount: 1,
+    },
+    {
+        round: 25,
+        amount: 1,
+    },
+    {
+        round: 26,
+        amount: 1,
+    },
+];
+
 // Deck of cards
 exports.deck_of_cards = [
     {
@@ -614,5 +722,28 @@ exports.images_5_player = [
     {
         name: "Siim Vene",
         image: "https://i.imgur.com/hSmwE9Q.jpg",
+    },
+];
+
+exports.images_6_player = [
+    {
+        name: "Viljar Veski",
+        image: "https://i.imgur.com/hJC34AI.jpg",
+    },
+    {
+        name: "Veljo Vares",
+        image: "https://i.imgur.com/1xy7xvX.jpg",
+    },
+    {
+        name: "Joosep Toome",
+        image: "https://i.imgur.com/tinwmUG.jpg",
+    },
+    {
+        name: "Heiko Niidas",
+        image: "https://i.imgur.com/uPuDCok.jpg",
+    },
+    {
+        name: "Asko Paade",
+        image: "https://i.imgur.com/0yEgh8S.jpg",
     },
 ];
