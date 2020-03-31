@@ -241,7 +241,7 @@ exports.update_game = (req, res, next) => {
             update = { $set: { hand: req.body.nextHand } };
         }
     } else {
-        update = { $set: { isOver: true } };
+        update = { $set: { isOver: true, players: updatedPlayers } };
     }
 
     Games.updateOne({ room_code: req.params.code }, update)
