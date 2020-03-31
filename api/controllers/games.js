@@ -138,6 +138,7 @@ exports.create_game = (req, res, next) => {
         round: 1,
         hand: 1,
         dealer: req.body.players[0].uid,
+        isOver: false,
     });
 
     game.save()
