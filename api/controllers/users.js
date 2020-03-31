@@ -98,7 +98,7 @@ exports.leave_room = (req, res) => {
 // Check if player is in this room?
 exports.check_if_player = (req, res, next) => {
 
-    Users.findOne({ room_code: req.body.code, browser_id: req.body.browser_id })
+    Users.findOne({ room_code: req.params.code, browser_id: req.params.uid })
         .select("_id browser_id room_code name")
         .exec()
         .then(user => {
@@ -246,6 +246,35 @@ exports.am_i_in = (req, res) => {
             res.status(403).json({
                 success: false,
                 err: err,
+            });
+        });
+
+}
+
+// v2 callbacks
+
+// Get all players
+exports.get_all_players_from_room = (req, res, next) => {
+
+    Users.find({ room_code: req.params.code })
+        .select("_id browser_id name")
+        .exec()
+        .then(docs => {
+            req.body.players = docs.map(doc => {
+                return {
+                    uid: doc.browser_id,
+                    name: doc.name,
+                };
+            }),
+            req.body.state = "game_on";
+            console.log("Mängijad leitud");
+            return next();
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
             });
         });
 

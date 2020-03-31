@@ -25,27 +25,10 @@ exports.return_all = (req, res) => {
 
 }
 
-// Change room state
-exports.change_room_state = (req, res, next) => {
-
-    Rooms.updateOne({ code: req.body.code }, { $set: { state: req.body.state } })
-        .exec()
-        .then(_ => {
-            next();
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
 // Get room data
 exports.get_room_data = (req, res, next) => {
 
-    Rooms.findOne({ code: req.body.code })
+    Rooms.findOne({ code: req.params.code })
         .select("_id code host_browser_id state")
         .exec()
         .then(room => {
@@ -67,6 +50,27 @@ exports.get_room_data = (req, res, next) => {
             res.status(403).json({
                 success: false,
                 err: err,
+            });
+        });
+
+}
+
+// v2 callbacks
+
+// Change room state
+exports.change_room_state = (req, res, next) => {
+
+    Rooms.updateOne({ code: req.params.code }, { $set: { state: req.body.state } })
+        .exec()
+        .then(_ => {
+            console.log("Ruumi staatus muudetud");
+            return next();
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
             });
         });
 

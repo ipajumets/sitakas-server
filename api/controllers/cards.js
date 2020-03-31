@@ -25,61 +25,18 @@ exports.get_all_cards = (req, res) => {
 
 }
 
-// Get my cards
-exports.get_my_cards = (req, res) => {
+// Remove card
+exports.remove_card = (req, res, next) => {
 
-    let gameOver = isGameOver(req.body.game.players.length, req.body.game.round);
-
-    Cards.findOne({ room_code: req.body.code, round: gameOver ? req.body.game.round-1 : req.body.game.round, uid: req.body.user.browser_id })
-        .select("_id room_code uid round active not_active")
-        .exec()
-        .then(card => {
-            if (card) {
-                req.body.myCards = {
-                    _id: card._id,
-                    room_code: card.room_code,
-                    uid: card.uid,
-                    round: card.round,
-                    active: card.active,
-                    not_active: card.not_active,
-                };
-
-                res.status(201).json({
-                    room: req.body.room,
-                    user: req.body.user,
-                    game: {
-                        ...req.body.game,
-                        round: gameOver ? req.body.game.round-1 : req.body.game.round,
-                        over: gameOver,
-                    },
-                    previousRound: req.body.previousRound,
-                    round: req.body.round,
-                    previousHand: req.body.previousHand,
-                    hand: req.body.hand,
-                    myCards: req.body.myCards,
-                });
-
-            } else {
-                res.status(201).json({
-                    room: req.body.room,
-                    user: req.body.user,
-                    game: req.body.game,
-                    game: {
-                        ...req.body.game,
-                        round: gameOver ? req.body.game.round-1 : req.body.game.round,
-                        over: gameOver,
-                    },
-                    round: req.body.round,
-                    previousRound: req.body.previousRound,
-                    previousHand: req.body.previousHand,
-                    hand: req.body.hand,
-                    myCards: null,
-                });
-            }
+    Cards.updateOne({ room_code: req.params.code, uid: req.body.card.uid, round: req.body.game.round }, { $pull: { active: { value: req.body.card.value, suit: req.body.card.suit } }, $addToSet: { not_active: { value: req.body.card.value, suit: req.body.card.suit } } })
+        .then(_ => {
+            next();
         })
         .catch(err => console.log(err));
 
 }
+
+// v2 callbacks
 
 // Divide cards
 exports.divide_cards = (req, res, next) => {
@@ -88,15 +45,15 @@ exports.divide_cards = (req, res, next) => {
         deck_of_cards = constants.deck_of_cards,
         rounds = globalHelpers.getGameRoundsStructure(req.body.players.length);
 
-    let promises = req.body.players.map(player => {
+    const promises = req.body.players.map(player => {
 
         let result = cardsHelpers.shuffle(deck_of_cards, req.body.round, rounds);
             deck_of_cards = result.pack;
 
-        let cards = new Cards({
+        const cards = new Cards({
             _id: new mongoose.Types.ObjectId(),
-            room_code: req.body.code,
-            uid: player.browser_id ? player.browser_id : player.uid,
+            room_code: req.params.code,
+            uid: player.uid,
             round: req.body.round,
             active: result.my_cards,
             not_active: [],
@@ -107,10 +64,10 @@ exports.divide_cards = (req, res, next) => {
                 return;
             })
             .catch(err => {
-                console.log(err);
-                res.status(403).json({
-                    success: false,
-                    err: err,
+                return res.status(500).json({
+                    error: true,
+                    message: "Midagi läks valesti, palun proovige uuesti!",
+                    fullMessage: err,
                 });
             });
 
@@ -131,42 +88,53 @@ exports.divide_cards = (req, res, next) => {
             trump_card = { value: random_card.value, suit: random_card.suit },
             req.body.trump = trump_card;
 
-            next();
+            console.log("Kaardid jagatud");
+            return next();
 
         });
 
 }
 
-// Remove card
-exports.remove_card = (req, res, next) => {
+// Get my cards
+exports.get_my_cards = (req, res) => {
 
-    Cards.updateOne({ room_code: req.body.code, uid: req.body.uid, round: req.body.round }, { $pull: { active: { value: req.body.value, suit: req.body.suit } }, $addToSet: { not_active: { value: req.body.value, suit: req.body.suit } } })
-        .then(_ => {
-            next();
+    let gameOver = globalHelpers.isGameOver(req.body.game.players.length, req.body.game.round);
+
+    Cards.findOne({ room_code: req.params.code, round: gameOver ? req.body.game.round-1 : req.body.game.round, uid: req.params.uid })
+        .select("_id room_code uid round active not_active")
+        .exec()
+        .then(card => {
+            req.body.myCards = card ? {
+                _id: card._id,
+                room_code: card.room_code,
+                uid: card.uid,
+                round: card.round,
+                active: card.active,
+                not_active: card.not_active,
+            } : null;
+
+            res.status(201).json({
+                room: req.body.room,
+                user: req.body.user,
+                game: {
+                    ...req.body.game,
+                    round: gameOver ? req.body.game.round-1 : req.body.game.round,
+                    over: gameOver,
+                },
+                previousRound: req.body.previousRound,
+                round: req.body.round,
+                previousHand: req.body.previousHand,
+                hand: req.body.hand,
+                myCards: req.body.myCards,
+            });
+            
         })
-        .catch(err => console.log(err));
-
-}
-
-// helpers
-let isGameOver = (players, round) => {
-
-    if (players === 3 && round > 29) {
-        return true;
-    }
-
-    if (players === 4 && round > 26) {
-        return true;
-    }
-
-    if (players === 5 && round > 25) {
-        return true;
-    }
-
-    if (players === 6 && round > 26) {
-        return true;
-    }
-
-    return false;
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
+            });
+        });
 
 }

@@ -7,9 +7,7 @@ const gamesSchema = mongoose.Schema({
     round: { type: Number, required: true },
     hand: { type: Number, required: true },
     dealer: { type: String, required: true },
-    turn: { type: String, required: true },
-    action: { type: String, required: true },
-    trump: { type: { value: Number, suit: String } },
+    isOver: { type: Boolean, required: true },
 });
 
 module.exports = mongoose.model("Games", gamesSchema);

@@ -27,7 +27,9 @@ exports.sumPoints = (results, players) => {
 
     let newPoints = players.map(player => {
         return {
-            ...player,
+            uid: player.uid,
+            image: player.image,
+            name: player.name,
             points: addPoints(player.uid, player.points, results),
         }
     });
@@ -48,6 +50,19 @@ let addPoints = (uid, points, results) => {
         return points+user.won+5;
     } else {
         return points+user.won;
+    }
+
+}
+
+// Who is the next dealer?
+exports.getNextDealer = (players, uid) => {
+
+    const nextIndex = (players.findIndex(player => player.uid === uid))+1;
+
+    if (players[nextIndex]) {
+        return players[nextIndex].uid;
+    } else {
+        return players[0].uid;
     }
 
 }

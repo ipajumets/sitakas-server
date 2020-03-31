@@ -20,3 +20,46 @@ exports.isLastHandOfTheRound = (round, hand, rounds) => {
     return hand === amount;
 
 }
+
+// v2 helpers
+
+// Is it the first card of the hand?
+exports.firstCardOfTheHand = (cards) => {
+
+    return cards.length < 1;
+
+}
+
+// Is it the last card of the hand?
+exports.lastCardOfTheHand = (cards, players) => {
+
+    return (cards.length+1) === players.length;
+
+}
+
+// Determine winner
+exports.determineWinner = (round, hand, c) => {
+
+    let trump = round.trump,
+        cards = [...hand.cards, c],
+        base = hand.base;
+
+    let playersWithTrump = cards.filter(card => card.suit === trump.suit);
+
+    if (playersWithTrump.length === 1) {
+        return playersWithTrump[0];
+    } else if (playersWithTrump.length > 1) {
+        let sorted = playersWithTrump.sort((a, b) => b.value - a.value);
+        return sorted[0];
+    }
+
+    let playersWithBase = cards.filter(card => card.suit === base.suit);
+
+    if (playersWithBase.length === 1) {
+        return playersWithBase[0];
+    } else if (playersWithBase.length > 1) {
+        let sorted = playersWithBase.sort((a, b) => b.value - a.value);
+        return sorted[0];
+    }
+
+}
