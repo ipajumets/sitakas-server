@@ -332,3 +332,17 @@ exports.update_round_bugs = (req, res) => {
         .catch(err => console.log(err));
 
 }
+
+// Delete all cards
+exports.delete_all_rounds = (req, res) => {
+
+    Rounds.deleteMany({})
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}

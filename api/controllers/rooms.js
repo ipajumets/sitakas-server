@@ -173,3 +173,17 @@ let generateCode = (length) => {
     return result;
 
 }
+
+// Delete all cards
+exports.delete_all_rooms = (req, res) => {
+
+    Rooms.deleteMany({})
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}

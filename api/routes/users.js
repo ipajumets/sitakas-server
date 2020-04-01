@@ -17,4 +17,6 @@ router.post("/get-players/:code", controller.get_players);
 
 router.post("/leave-room/:code", controller.leave_room);
 
+router.delete("/delete-all", controller.delete_all_users);
+
 module.exports = router;

@@ -17,4 +17,8 @@ router.get("/create-game/:code", usersController.get_all_players_from_room, room
 
 router.get("/get-game-data/:code/:uid", roomsController.get_room_data, usersController.check_if_player, controller.get_game, roundsController.get_previous_round, roundsController.get_round, handsController.get_previous_hand, handsController.get_hand, cardsController.get_my_cards);
 
+router.delete("/delete-all", controller.delete_all_games);
+
+router.delete("/delete/:id", controller.delete_a_game);
+
 module.exports = router;

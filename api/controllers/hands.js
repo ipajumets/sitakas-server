@@ -291,3 +291,17 @@ exports.add_card = (req, res, next) => {
         });
 
 }
+
+// Delete all cards
+exports.delete_all_hands = (req, res) => {
+
+    Hands.deleteMany({})
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}

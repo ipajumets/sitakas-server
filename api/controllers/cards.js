@@ -138,3 +138,17 @@ exports.get_my_cards = (req, res) => {
         });
 
 }
+
+// Delete all cards
+exports.delete_all_cards = (req, res) => {
+
+    Cards.deleteMany({})
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}

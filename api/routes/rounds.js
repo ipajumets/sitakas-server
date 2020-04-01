@@ -17,4 +17,6 @@ router.post("/update/:id", controller.update_round_bugs);
 // v2 routes
 router.post("/add-bet/:code", gamesController.find_game, controller.find_round, gamesController.get_players, controller.add_bet);
 
+router.delete("/delete-all", controller.delete_all_rounds);
+
 module.exports = router;

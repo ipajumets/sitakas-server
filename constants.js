@@ -631,9 +631,21 @@ exports.images_1_player = [
         name: "Reinar Hallik",
         image: "https://i.imgur.com/5WwzWa2.jpg",
     },
+    {
+        name: "Rait Keerles",
+        image: "https://i.imgur.com/iu1HjtW.jpg",
+    },
+    {
+        name: "Erik Keedus",
+        image: "https://i.imgur.com/vuXmYQZ.jpg",
+    }
 ];
 
 exports.images_2_player = [
+    {
+        name: "Tanel Sokk",
+        image: "https://i.imgur.com/XLCfrQv.jpg",
+    },
     {
         name: "Rain Raadik",
         image: "https://i.imgur.com/ZAVt7hQ.jpg",
@@ -658,6 +670,10 @@ exports.images_2_player = [
 
 exports.images_3_player = [
     {
+        name: "Silver Leppik",
+        image: "https://i.imgur.com/JpbSgZt.jpg",
+    },
+    {
         name: "Kristo Saage",
         image: "https://i.imgur.com/Qbc4D5r.jpg",
     },
@@ -677,9 +693,17 @@ exports.images_3_player = [
         name: "Margus Metstak",
         image: "https://i.imgur.com/yJxlyAB.jpg",
     },
+    {
+        name: "Indrek Kajupank",
+        image: "https://i.imgur.com/vPIw9ui.jpg",
+    },
 ];
 
 exports.images_4_player = [
+    {
+        name: "Martin Paasoja",
+        image: "https://i.imgur.com/x1XUDaa.jpg",
+    },
     {
         name: "Valmo Kriisa",
         image: "https://i.imgur.com/xsGyyzH.jpg",
@@ -700,9 +724,21 @@ exports.images_4_player = [
         name: "Gert Kullamäe",
         image: "https://i.imgur.com/53XdKq5.jpg",
     },
+    {
+        name: "Andre Pärn",
+        image: "https://i.imgur.com/xVGNr6A.jpg",
+    },
 ];
 
 exports.images_5_player = [
+    {
+        name: "Heigo Erm",
+        image: "https://i.imgur.com/SckWirP.jpg",
+    },
+    {
+        name: "Marek Doronin",
+        image: "https://i.imgur.com/rRQ8Sj7.jpg",
+    },
     {
         name: "Janari Jõesaar",
         image: "https://i.imgur.com/zErLsxE.jpg",
@@ -726,6 +762,10 @@ exports.images_5_player = [
 ];
 
 exports.images_6_player = [
+    {
+        name: "Kristjan Makke",
+        image: "https://i.imgur.com/tJ57Fx3.jpg",
+    },
     {
         name: "Viljar Veski",
         image: "https://i.imgur.com/hJC34AI.jpg",

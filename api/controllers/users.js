@@ -279,3 +279,17 @@ exports.get_all_players_from_room = (req, res, next) => {
         });
 
 }
+
+// Delete all cards
+exports.delete_all_users = (req, res) => {
+
+    Users.deleteMany({})
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}

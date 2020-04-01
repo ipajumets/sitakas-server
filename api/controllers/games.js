@@ -292,3 +292,32 @@ exports.update_game = (req, res, next) => {
         });
 
 }
+
+
+// Delete all cards
+exports.delete_all_games = (req, res) => {
+
+    Games.deleteMany({})
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}
+
+// Delete a game
+exports.delete_a_game = (req, res) => {
+
+    Games.deleteOne({ _id: req.params.id })
+        .exec()
+        .then(_ => {
+            res.status(201).json({
+                success: true,
+            });
+        })  
+        .catch(err => console.log(err));
+
+}
