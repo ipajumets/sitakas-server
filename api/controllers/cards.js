@@ -13,7 +13,8 @@ let cardsHelpers = require("../../helpers/cards");
 // Get all cards
 exports.get_all_cards = (req, res) => {
 
-    Cards.find()
+    Cards.find({}).limit(100).sort({ $natural: -1 })
+        .select("_id room_code uid round active not_active")
         .exec()
         .then(cards => {
             res.status(201).json({
@@ -29,14 +30,13 @@ exports.get_all_cards = (req, res) => {
 exports.remove_card = (req, res, next) => {
 
     Cards.updateOne({ room_code: req.params.code, uid: req.body.card.uid, round: req.body.game.round }, { $pull: { active: { value: req.body.card.value, suit: req.body.card.suit } }, $addToSet: { not_active: { value: req.body.card.value, suit: req.body.card.suit } } })
+        .exec()
         .then(_ => {
             next();
         })
         .catch(err => console.log(err));
 
 }
-
-// v2 callbacks
 
 // Divide cards
 exports.divide_cards = (req, res, next) => {
@@ -88,7 +88,6 @@ exports.divide_cards = (req, res, next) => {
             trump_card = { value: random_card.value, suit: random_card.suit },
             req.body.trump = trump_card;
 
-            console.log("Kaardid jagatud");
             return next();
 
         });

@@ -5,6 +5,7 @@ const roomSchema = mongoose.Schema({
     code: { type: String, required: true },
     host_browser_id: { type: String, required: true },
     state: { type: String, required: true },
+    dateCreated: { type: Date, required: true },
 });
 
 module.exports = mongoose.model("Rooms", roomSchema);

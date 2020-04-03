@@ -1,13 +1,18 @@
 let mongoose = require("mongoose");
+let server = require("../../Server");
 
 // Models
 const Rooms = require("../models/rooms");
+const Users = require("../models/users");
+
+// Helpers
+const helpers = require("../../helpers/rooms");
 
 // Get all rooms
 exports.return_all = (req, res) => {
 
-    Rooms.find()
-        .select("_id code host_browser_id state")
+    Rooms.find({}).limit(20).sort({ $natural: -1 })
+        .select("_id code host_browser_id state dateCreated")
         .exec()
         .then(result => {
             res.status(201).json({
@@ -29,7 +34,7 @@ exports.return_all = (req, res) => {
 exports.get_room_data = (req, res, next) => {
 
     Rooms.findOne({ code: req.params.code })
-        .select("_id code host_browser_id state")
+        .select("_id code host_browser_id state dateCreated")
         .exec()
         .then(room => {
             if (room) {
@@ -38,6 +43,7 @@ exports.get_room_data = (req, res, next) => {
                     code: room.code,
                     host_browser_id: room.host_browser_id,
                     state: room.state,
+                    dateCreated: room.dateCreated,
                 };
                 next();
             } else {
@@ -55,15 +61,12 @@ exports.get_room_data = (req, res, next) => {
 
 }
 
-// v2 callbacks
-
 // Change room state
 exports.change_room_state = (req, res, next) => {
 
     Rooms.updateOne({ code: req.params.code }, { $set: { state: req.body.state } })
         .exec()
         .then(_ => {
-            console.log("Ruumi staatus muudetud");
             return next();
         })
         .catch(err => {
@@ -76,54 +79,27 @@ exports.change_room_state = (req, res, next) => {
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-exports.check = (req, res) => {
+// Check if new host needed
+exports.check_if_new_host_needed = (req, res, next) => {
 
     Rooms.findOne({ code: req.params.code })
-        .select("_id code host_browser_id state")
+        .select("_id host_browser_id")
         .exec()
-        .then(result => {
-            if (result) {
+        .then(room => {
+            if (room.host_browser_id !== req.body.id) {
+
+                server.io.emit(`${req.params.code}_left`, {
+                    data: {
+                        id: req.body.id,
+                    }
+                });
                 res.status(201).json({
                     success: true,
-                    data: result,
                 });
+
             } else {
-                res.status(201).json({
-                    success: true,
-                    data: null,
-                });
-            }        
+                next();
+            }   
         })
         .catch(err => {
             res.status(403).json({
@@ -134,13 +110,60 @@ exports.check = (req, res) => {
 
 }
 
+// Check if new host needed
+exports.make_new_host = (req, res) => {
+
+    Users.find({ room_code: req.params.code })
+        .select("_id browser_id")
+        .exec()
+        .then(users => {
+            if (users.length !== 0) {
+
+                Rooms.updateOne({ code: req.params.code }, { $set: { host_browser_id: users[0].browser_id } })
+                    .exec()
+                    .then(_ => {
+
+                        setTimeout(() => {
+                            server.io.emit(`${req.params.code}_new_host`, {
+                                data: {
+                                    id: req.body.id,
+                                },
+                            });
+                        }, 667);
+
+                        res.status(201).json({
+                            success: true,
+                        }); 
+
+                    })
+                    .catch(err => console.log(err));
+
+            } else {
+
+                Rooms.deleteOne({ code: req.params.code })
+                    .exec()
+                    .then(_ => {
+                        res.status(201).json({
+                            success: true,
+                        });
+                    })
+                    .catch(err => console.log(err));
+
+            }
+        })
+        .catch(err => console.log(err));
+
+}
+
+// Create new room
 exports.create_new_room = (req, res) => {
 
     let room = new Rooms({
         _id: new mongoose.Types.ObjectId(),
-        code: generateCode(6),
+        code: helpers.generateCode(6),
         host_browser_id: req.body.id,
         state: "pre",
+        dateCreated: new Date().toISOString(),
     });
 
     room.save()
@@ -156,21 +179,6 @@ exports.create_new_room = (req, res) => {
                 err: err,
             });
         });
-
-}
-
-// helpers
-
-let generateCode = (length) => {
-
-    let result = "";
-    let characters = "0123456789";
-    let charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-
-    return result;
 
 }
 

@@ -5,6 +5,7 @@ const userSchema = mongoose.Schema({
     browser_id: { type: String, required: true },
     room_code: { type: String, required: true },
     name: { type: String, required: true },
+    dateCreated: { type: Date, required: true },
 });
 
 module.exports = mongoose.model("Users", userSchema);

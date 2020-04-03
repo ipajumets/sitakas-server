@@ -35,19 +35,11 @@ let io = socketIo(server);
 io.sockets.on("connection", (socket) => {
 
     count++;
-
-    console.log("Connected users:", count);
-
     io.sockets.emit("count", { count });
 
     socket.on("disconnect", () => {
-
         count--;
-
-        console.log("Connected users:", count);
-
         io.sockets.emit("count", { count });
-
     });
 
 });

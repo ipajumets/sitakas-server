@@ -8,8 +8,8 @@ const Rooms = require("../models/rooms");
 // Get all users
 exports.return_all = (req, res) => {
 
-    Users.find()
-        .select("_id browser_id room_code name points active")
+    Users.find({}).limit(50).sort({ $natural: -1 })
+        .select("_id browser_id room_code name dateCreated")
         .exec()
         .then(result => {
             res.status(201).json({
@@ -35,14 +35,15 @@ exports.join_room = (req, res) => {
         browser_id: req.body.id,
         room_code: req.body.code,
         name: req.body.name,
-        points: 0,
-        active: true,
+        dateCreated: new Date().toISOString(),
     });
 
     user.save()
         .then(added => {
 
             Users.find({ room_code: req.body.code })
+                .select("_id browser_id room_code name dateCreated")
+                .exec()
                 .then(players => {
 
                     server.io.emit(`${req.body.code}_joined`, {
@@ -69,22 +70,12 @@ exports.join_room = (req, res) => {
 }
 
 // Leave room
-exports.leave_room = (req, res) => {
+exports.leave_room = (req, res, next) => {
 
     Users.deleteOne({ browser_id: req.body.id, room_code: req.params.code })
         .exec()
         .then(_ => {
-
-            server.io.emit(`${req.params.code}_left`, {
-                data: {
-                    id: req.body.id,
-                }
-            });
-
-            res.status(201).json({
-                success: true,
-            });
-
+            next();
         })
         .catch(err => {
             res.status(403).json({
@@ -99,7 +90,7 @@ exports.leave_room = (req, res) => {
 exports.check_if_player = (req, res, next) => {
 
     Users.findOne({ room_code: req.params.code, browser_id: req.params.uid })
-        .select("_id browser_id room_code name")
+        .select("_id browser_id room_code name dateCreated")
         .exec()
         .then(user => {
             if (user) {
@@ -107,6 +98,7 @@ exports.check_if_player = (req, res, next) => {
                     _id: user._id,
                     browser_id: user.browser_id,
                     name: user.name,
+                    dateCreated: user.dateCreated,
                 };
                 next();
             } else {
@@ -129,20 +121,20 @@ exports.check_if_player = (req, res, next) => {
 exports.check_my_waiting_status = (req, res) => {
 
     Rooms.findOne({ code: req.body.code })
-        .select("_id code host_browser_id state")
+        .select("_id code host_browser_id state dateCreated")
         .exec()
         .then(room => {
 
             if (room) {
 
                 Users.findOne({ browser_id: req.body.id, room_code: req.body.code })
-                    .select("_id browser_id room_code name points active")
+                    .select("_id browser_id room_code name dateCreated")
                     .exec()
                     .then(doc => {
                         if (doc) {
 
                             Users.find({ room_code: req.body.code })
-                                .select("_id browser_id room_code name points active")
+                                .select("_id browser_id room_code name dateCreated")
                                 .exec()
                                 .then(players => {
 
@@ -179,95 +171,21 @@ exports.check_my_waiting_status = (req, res) => {
 
 }
 
-exports.double_check = (req, res) => {
-
-    Users.findOne({ browser_id: req.body.id, room_code: req.body.code })
-        .select("_id browser_id room_code name points active")
-        .exec()
-        .then(doc => {
-            if (doc) {
-                res.status(201).json({
-                    success: true,
-                    data: doc,
-                });
-            } else {
-                res.status(201).json({
-                    success: true,
-                    data: null,
-                });
-            }
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
-exports.get_players = (req, res) => {
-
-    Users.find({ browser_id: { $ne: req.body.id }, room_code: req.params.code })
-        .select("_id browser_id room_code name points active")
-        .exec()
-        .then(docs => {
-            res.status(201).json({
-                success: true,
-                data: docs,
-            });
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
-exports.am_i_in = (req, res) => {
-
-    Users.findOne({ browser_id: req.body.id, room_code: req.body.code })
-        .select("_id")
-        .exec()
-        .then(doc => {
-            if (doc) {
-                res.status(201).json({
-                    success: true,
-                });
-            } else {
-                res.status(201).json({
-                    success: false,
-                });
-            }
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
-// v2 callbacks
-
 // Get all players
 exports.get_all_players_from_room = (req, res, next) => {
 
     Users.find({ room_code: req.params.code })
-        .select("_id browser_id name")
+        .select("_id browser_id name dateCreated")
         .exec()
         .then(docs => {
             req.body.players = docs.map(doc => {
                 return {
                     uid: doc.browser_id,
                     name: doc.name,
+                    dateCreated: doc.dateCreated,
                 };
             }),
             req.body.state = "game_on";
-            console.log("Mängijad leitud");
             return next();
         })
         .catch(err => {

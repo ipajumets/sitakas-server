@@ -66,3 +66,26 @@ exports.getNextDealer = (players, uid) => {
     }
 
 }
+
+// Is it last round of the game?
+exports.isLastRoundOfTheGame = (players, round) => {
+
+    if (players === 3 && round === 29) {
+        return true;
+    }
+
+    if (players === 4 && round === 26) {
+        return true;
+    }
+
+    if (players === 5 && round === 25) {
+        return true;
+    }
+
+    if (players === 6 && round === 26) {
+        return true;
+    }
+
+    return false;
+
+}

@@ -60,29 +60,6 @@ exports.get_game = (req, res, next) => {
 
 }
 
-// Set trump card and continue
-exports.set_trump_card_and_continue = (req, res) => {
-
-    Games.updateOne({ room_code: req.body.code }, { $set: { trump: req.body.trump } })
-        .exec()
-        .then(_ => {
-
-            setTimeout(() => {
-                server.io.emit(`${req.body.code}_new_round`, {
-                    code: req.body.code,
-                });
-            }, 2000);
-
-            res.status(201).json({
-                success: true,
-                message: "Game continues!",
-            });
-
-        })
-        .catch(err => console.log(err));
-
-}
-
 // Next turn
 exports.set_next_turn = (req, res, next) => {
 
@@ -97,30 +74,6 @@ exports.set_next_turn = (req, res, next) => {
         .catch(err => console.log(err));
 
 }
-
-let isLastRoundOfTheGame = (players, round) => {
-
-    if (players === 3 && round === 29) {
-        return true;
-    }
-
-    if (players === 4 && round === 26) {
-        return true;
-    }
-
-    if (players === 5 && round === 25) {
-        return true;
-    }
-
-    if (players === 6 && round === 26) {
-        return true;
-    }
-
-    return false;
-
-}
-
-// v2 callbacks
 
 // Create new game
 exports.create_game = (req, res, next) => {
@@ -196,7 +149,7 @@ exports.get_players = (req, res, next) => {
 exports.find_game = (req, res, next) => {
 
     Games.findOne({ room_code: req.params.code })
-        .select("_id room_code players round hand dealer")
+        .select("_id room_code players round hand dealer dateCreated")
         .exec()
         .then(game => {
             if (game) {
@@ -207,6 +160,7 @@ exports.find_game = (req, res, next) => {
                     round: game.round,
                     hand: game.hand,
                     dealer: game.dealer,
+                    dateCreated: game.dateCreated,
                 };
                 next();
             } else {
@@ -234,7 +188,7 @@ exports.update_game = (req, res, next) => {
         nextPlayer = helpers.getNextDealer(req.body.game.players, nextDealer),
         updatedPlayers = helpers.sumPoints(req.body.round.results, req.body.game.players),
         nextRound = req.body.game.round+1,
-        isOver = isLastRoundOfTheGame(req.body.game.players.length, req.body.game.round);
+        isOver = helpers.isLastRoundOfTheGame(req.body.game.players.length, req.body.game.round);
 
     if (!isOver) {
         if (!req.body.nextHand) {
@@ -264,7 +218,6 @@ exports.update_game = (req, res, next) => {
                     req.body.turn = nextPlayer,
                     req.body.action = "guess",
                     req.body.newRound = true;
-                    console.log("Mäng uuendatud");
                     next();
                 } else {
                     setTimeout(() => {

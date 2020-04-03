@@ -12,7 +12,7 @@ const roundHelpers = require("../../helpers/rounds");
 exports.return_all = (req, res) => {
 
     Rounds.find({}).limit(50).sort({ $natural: -1 })
-        .select("_id room_code round hand results turn action trump")
+        .select("_id room_code round hand results turn action trump dateCreated")
         .exec()
         .then(rounds => {
             res.status(201).json({
@@ -27,6 +27,7 @@ exports.return_all = (req, res) => {
                         turn: round.turn,
                         action: round.action,
                         trump: round.trump,
+                        dateCreated: round.dateCreated,
                     }
                 }),
             });
@@ -34,73 +35,6 @@ exports.return_all = (req, res) => {
         .catch(err => console.log(err));
 
 }
-
-// Get one round
-exports.get_previous_round = (req, res, next) => {
-
-    Rounds.findOne({ room_code: req.params.code, round: req.body.game.round-1 })
-        .select("_id results")
-        .exec()
-        .then(round => {
-            if (round) {
-                req.body.previousRound = {
-                    _id: round._id,
-                    results: round.results,
-                };
-                next();
-            } else {
-                req.body.previousRound = null;
-                next();
-            }
-        })
-        .catch(err => console.log(err));
-
-}
-
-// Create new round for bugs
-exports.create_new_round_for_bugs = (req, res, next) => {
-
-    let round = new Rounds({
-        _id: new mongoose.Types.ObjectId(),
-        room_code: req.body.code,
-        results: [],
-        round: req.body.round,
-    });
-
-    round.save()
-        .then(_ => {
-            res.status(201).json({
-                success: true,
-            });
-        })
-        .catch(err => {
-            res.status(403).json({
-                success: false,
-                err: err,
-            });
-        });
-
-}
-
-// Add bet
-exports.update_results = (req, res, next) => {
-
-    Rounds.updateOne({ room_code: req.body.code, round: req.body.round }, { $set: { results: req.body.results } })
-        .exec()
-        .then(_ => {
-
-            server.io.emit(`${req.body.code}_update_results`, {
-                data: req.body.results,
-            });
-
-            next();
-            
-        })
-        .catch(err => console.log(err));
-
-}
-
-// v2 callbacks
 
 // Create new round
 exports.create_round = (req, res, next) => {
@@ -114,6 +48,7 @@ exports.create_round = (req, res, next) => {
         turn: req.body.turn,
         action: req.body.action,
         trump: req.body.trump,
+        dateCreated: new Date().toISOString(),
     });
 
     round.save()
@@ -137,7 +72,7 @@ exports.get_round = (req, res, next) => {
     let gameOver = globalHelpers.isGameOver(req.body.game.players.length, req.body.game.round);
 
     Rounds.findOne({ room_code: req.params.code, round: gameOver ? req.body.game.round-1 : req.body.game.round })
-        .select("_id room_code round hand results turn action trump")
+        .select("_id room_code round hand results turn action trump dateCreated")
         .exec()
         .then(round => {
             if (round) {
@@ -150,6 +85,7 @@ exports.get_round = (req, res, next) => {
                     turn: round.turn,
                     action: round.action,
                     trump: round.trump,
+                    dateCreated: round.dateCreated,
                 };
                 next();
             } else {
@@ -165,11 +101,33 @@ exports.get_round = (req, res, next) => {
 
 }
 
+// Get previous round
+exports.get_previous_round = (req, res, next) => {
+
+    Rounds.findOne({ room_code: req.params.code, round: req.body.game.round-1 })
+        .select("_id results")
+        .exec()
+        .then(round => {
+            if (round) {
+                req.body.previousRound = {
+                    _id: round._id,
+                    results: round.results,
+                };
+                next();
+            } else {
+                req.body.previousRound = null;
+                next();
+            }
+        })
+        .catch(err => console.log(err));
+
+}
+
 // Find round
 exports.find_round = (req, res, next) => {
 
     Rounds.findOne({ room_code: req.params.code, round: req.body.game.round })
-        .select("_id room_code round hand results turn action trump")
+        .select("_id room_code round hand results turn action trump dateCreated")
         .exec()
         .then(round => {
             if (round) {
@@ -182,6 +140,7 @@ exports.find_round = (req, res, next) => {
                     turn: round.turn,
                     action: round.action,
                     trump: round.trump,
+                    dateCreated: round.dateCreated,
                 };
                 next();
             } else {
@@ -218,21 +177,49 @@ exports.add_bet = (req, res, next) => {
         });
     }
 
-    Rounds.updateOne({ room_code: req.params.code, round: req.body.round.round }, { $set: { turn: nextPlayer, action: nextAction }, $addToSet: { results: bet } })
+    Rounds.findOne({ room_code: req.params.code, round: req.body.round.round }) 
+        .select("_id results")
         .exec()
-        .then(_ => {
+        .then(r => {
 
-            server.io.emit(`${req.params.code}_bet_done`, {
-                ...req.body.round,
-                results: [...req.body.round.results, bet],
-                turn: nextPlayer,
-                action: nextAction,
+            let check = r.results.filter(resu => {
+                return resu.uid === bet.uid;
             });
 
-            return res.status(201).json({
-                success: true,
-                message: "Pakkumine edukalt lisatud!",
-            });
+            if (check.length < 1) {
+                Rounds.updateOne({ room_code: req.params.code, round: req.body.round.round }, { $set: { turn: nextPlayer, action: nextAction }, $addToSet: { results: bet } })
+                    .exec()
+                    .then(_ => {
+
+                        server.io.emit(`${req.params.code}_bet_done`, {
+                            ...req.body.round,
+                            results: [...req.body.round.results, bet],
+                            turn: nextPlayer,
+                            action: nextAction,
+                        });
+
+                        return res.status(201).json({
+                            success: true,
+                            message: "Pakkumine edukalt lisatud!",
+                        });
+                    })
+                    .catch(err => {
+                        return res.status(500).json({
+                            error: true,
+                            message: "Midagi läks valesti, palun proovige uuesti!",
+                            fullMessage: err,
+                        });
+                    });
+            } else {
+
+                return res.status(500).json({
+                    error: true,
+                    message: "Ole hea ja värskenda mängu. Miskit on mäda!",
+                    fullMessage: err,
+                });
+
+            }
+
         })
         .catch(err => {
             return res.status(500).json({
@@ -315,21 +302,6 @@ exports.update_round = (req, res, next) => {
                 fullMessage: err,
             });
         });
-
-}
-
-//  BUGS
-
-exports.update_round_bugs = (req, res) => {
-
-    Rounds.updateOne({ _id: req.params.id }, { $set: { results: req.body.results } })
-        .exec()
-        .then(_ => {
-            res.status(201).json({
-                message: "Is good",
-            });
-        })
-        .catch(err => console.log(err));
 
 }
 

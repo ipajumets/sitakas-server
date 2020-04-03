@@ -15,6 +15,7 @@ const roundsSchema = mongoose.Schema({
     turn: { type: String, required: true },
     action: { type: String, required: true },
     trump: { type: { value: Number, suit: String }, required: true },
+    dateCreated: { type: Date, required: true },
 });
 
 module.exports = mongoose.model("Rounds", roundsSchema);
