@@ -10,8 +10,8 @@ let helpers = require("../../helpers/games");
 // Get all games
 exports.return_all = (req, res) => {
 
-    Games.find()
-        .select("_id room_code players round hand dealer turn action trump")
+    Games.find({}).limit(20).sort({ $natural: -1 })
+        .select("_id room_code players round hand dealer turn action trump dateCreated")
         .exec()
         .then(result => {
             res.status(201).json({
@@ -33,7 +33,7 @@ exports.return_all = (req, res) => {
 exports.get_game = (req, res, next) => {
 
     Games.findOne({ room_code: req.params.code })
-        .select("_id room_code players round hand dealer isOver")
+        .select("_id room_code players round hand dealer isOver dateCreated")
         .exec()
         .then(game => {
             if (game) {
@@ -45,6 +45,7 @@ exports.get_game = (req, res, next) => {
                     hand: game.hand,
                     dealer: game.dealer,
                     isOver: game.isOver,
+                    dateCreated: game.dateCreated,
                 };
                 next();
             } else {
@@ -139,6 +140,7 @@ exports.create_game = (req, res, next) => {
         hand: 1,
         dealer: req.body.players[0].uid,
         isOver: false,
+        dateCreated: new Date().toISOString(),
     });
 
     game.save()

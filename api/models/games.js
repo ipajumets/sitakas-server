@@ -8,6 +8,7 @@ const gamesSchema = mongoose.Schema({
     hand: { type: Number, required: true },
     dealer: { type: String, required: true },
     isOver: { type: Boolean, required: true },
+    dateCreated: { type: Date, required: true },
 });
 
 module.exports = mongoose.model("Games", gamesSchema);
