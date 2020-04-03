@@ -6,6 +6,8 @@ let gamesController = require("../controllers/games");
 
 router.get("/all", controller.return_all);
 
+router.get("/get-all/:code", controller.get_all_for_game);
+
 router.post("/create-round", controller.create_round);
 
 router.post("/get-round", controller.get_round);

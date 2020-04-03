@@ -17,7 +17,7 @@ mongoose.connect("mongodb+srv://ipajumets:"+process.env.MONGO_PW+"@cluster0-pg1n
 
 mongoose.Promise = global.Promise;
 
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true, limit: "10mb" }));
 app.use(bodyParser.json({ limit: "10mb" }));
 

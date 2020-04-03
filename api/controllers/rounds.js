@@ -36,6 +36,34 @@ exports.return_all = (req, res) => {
 
 }
 
+// Get all rounds
+exports.get_all_for_game = (req, res) => {
+
+    Rounds.find({ room_code: req.params.code }).sort({ $natural: -1 })
+        .select("_id room_code round hand results turn action trump dateCreated")
+        .exec()
+        .then(rounds => {
+            res.status(201).json({
+                count: rounds.length,
+                rounds: rounds.map(round => {
+                    return {
+                        _id: round._id,
+                        room_code: round.room_code,
+                        round: round.round,
+                        hand: round.hand,
+                        results: round.results,
+                        turn: round.turn,
+                        action: round.action,
+                        trump: round.trump,
+                        dateCreated: round.dateCreated,
+                    }
+                }),
+            });
+        })
+        .catch(err => console.log(err));
+
+}
+
 // Create new round
 exports.create_round = (req, res, next) => {
 
@@ -212,11 +240,55 @@ exports.add_bet = (req, res, next) => {
                     });
             } else {
 
-                return res.status(500).json({
-                    error: true,
-                    message: "Ole hea ja värskenda mängu. Miskit on mäda!",
-                    fullMessage: err,
-                });
+                if (req.body.game.players.length === r.results.length) {
+                    Rounds.updateOne({ room_code: req.params.code, round: req.body.round.round }, { $set: { turn: r.results[0].uid, action: "call" } })
+                        .exec()
+                        .then(_ => {
+
+                            server.io.emit(`${req.params.code}_bet_done`, {
+                                ...req.body.round,
+                                turn: r.results[0].uid,
+                                action: "call",
+                            });
+
+                            return res.status(201).json({
+                                success: true,
+                                message: "Pakkumine edukalt lisatud!",
+                            });
+                        })
+                        .catch(err => {
+                            return res.status(500).json({
+                                error: true,
+                                message: "Midagi läks valesti, palun proovige uuesti!",
+                                fullMessage: err,
+                            });
+                        });
+                } else {
+
+                    Rounds.updateOne({ room_code: req.params.code, round: req.body.round.round }, { $set: { turn: nextPlayer, action: "guess" } })
+                        .exec()
+                        .then(_ => {
+
+                            server.io.emit(`${req.params.code}_bet_done`, {
+                                ...req.body.round,
+                                turn: nextPlayer,
+                                action: "guess",
+                            });
+
+                            return res.status(201).json({
+                                success: true,
+                                message: "Pakkumine edukalt lisatud!",
+                            });
+                        })
+                        .catch(err => {
+                            return res.status(500).json({
+                                error: true,
+                                message: "Midagi läks valesti, palun proovige uuesti!",
+                                fullMessage: err,
+                            });
+                        });
+
+                }
 
             }
 

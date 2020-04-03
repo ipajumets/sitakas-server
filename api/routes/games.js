@@ -10,6 +10,8 @@ let cardsController = require("../controllers/cards");
 
 router.get("/all", controller.return_all);
 
+router.get("/get/:code", controller.get_a_game);
+
 router.get("/return/:code", controller.get_game);
 
 router.get("/create-game/:code", usersController.get_all_players_from_room, roomsController.change_room_state, controller.create_game, cardsController.divide_cards, roundsController.create_round, handsController.create_hands);

@@ -29,6 +29,36 @@ exports.return_all = (req, res) => {
 
 }
 
+// Get game
+exports.get_a_game = (req, res, next) => {
+
+    Games.findOne({ room_code: req.params.code })
+        .select("_id room_code players round hand dealer isOver dateCreated")
+        .exec()
+        .then(game => {
+            if (game) {
+                res.status(201).json({
+                    _id: game._id,
+                    room_code: game.room_code,
+                    players: game.players,
+                    round: game.round,
+                    hand: game.hand,
+                    dealer: game.dealer,
+                    isOver: game.isOver,
+                    dateCreated: game.dateCreated,
+                });
+            } else {
+                res.status(201).json({
+                    room: req.body.room,
+                    user: req.body.user,
+                    game: null,
+                });
+            }
+        })
+        .catch(err => console.log(err));
+
+}
+
 // Get one game
 exports.get_game = (req, res, next) => {
 
