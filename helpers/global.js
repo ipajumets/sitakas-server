@@ -45,3 +45,58 @@ exports.isGameOver = (players, round) => {
     return false;
 
 }
+
+// Time since certain date
+exports.timeSince = (d) => {
+
+    var date = new Date(d);
+
+    var seconds = Math.floor((new Date() - date) / 1000);
+
+    var interval = Math.floor(seconds / 31536000);
+
+    if (interval > 1) {
+        return interval + " aastat tagasi";
+    } else if (interval === 1) {
+        return interval + " aasta tagasi";
+    }
+
+    interval = Math.floor(seconds / 2592000);
+
+    if (interval > 1) {
+        return interval + " kuud tagasi";
+    } else if (interval === 1) {
+        return interval + " kuu tagasi";
+    }
+
+    interval = Math.floor(seconds / 86400);
+
+    if (interval > 1) {
+        return interval + " päeva tagasi";
+    } else if (interval === 1) {
+        return interval + " päev tagasi";
+    }
+
+    interval = Math.floor(seconds / 3600);
+
+    if (interval > 1) {
+        return interval + " tundi tagasi";
+    } else if (interval === 1) {
+        return interval + " tund tagasi";
+    }
+
+    interval = Math.floor(seconds / 60);
+
+    if (interval > 1) {
+        return interval + " minutit tagasi";
+    } else if (interval === 1) {
+        return interval + " minut tagasi";
+    }
+
+    if (Math.floor(seconds) === 0) {
+        return "Just nüüd";
+    }
+
+    return Math.floor(seconds) + " sekundit tagasi";
+  
+}

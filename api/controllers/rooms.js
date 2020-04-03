@@ -7,6 +7,7 @@ const Users = require("../models/users");
 
 // Helpers
 const helpers = require("../../helpers/rooms");
+const globalHelpers = require("../../helpers/global");
 
 // Get all rooms
 exports.return_all = (req, res) => {
@@ -14,11 +15,19 @@ exports.return_all = (req, res) => {
     Rooms.find({}).limit(20).sort({ $natural: -1 })
         .select("_id code host_browser_id state dateCreated")
         .exec()
-        .then(result => {
+        .then(docs => {
             res.status(201).json({
                 success: true,
-                count: result.length,
-                data: result,
+                count: docs.length,
+                data: docs.map(doc => {
+                    return {
+                        _id: doc._id,
+                        code: doc.code,
+                        host: doc.host_browser_id,
+                        state: doc.state,
+                        created: globalHelpers.timeSince(doc.dateCreated),
+                    };
+                }),
             });
         })
         .catch(err => {
@@ -43,7 +52,7 @@ exports.get_room_data = (req, res, next) => {
                     code: room.code,
                     host_browser_id: room.host_browser_id,
                     state: room.state,
-                    dateCreated: room.dateCreated,
+                    created: globalHelpers.timeSince(room.dateCreated),
                 };
                 next();
             } else {

@@ -27,7 +27,7 @@ exports.return_all = (req, res) => {
                         turn: round.turn,
                         action: round.action,
                         trump: round.trump,
-                        dateCreated: round.dateCreated,
+                        created: globalHelpers.timeSince(round.dateCreated),
                     }
                 }),
             });
@@ -55,7 +55,7 @@ exports.get_all_for_game = (req, res) => {
                         turn: round.turn,
                         action: round.action,
                         trump: round.trump,
-                        dateCreated: round.dateCreated,
+                        created: globalHelpers.timeSince(round.dateCreated),
                     }
                 }),
             });
@@ -113,7 +113,7 @@ exports.get_round = (req, res, next) => {
                     turn: round.turn,
                     action: round.action,
                     trump: round.trump,
-                    dateCreated: round.dateCreated,
+                    created: globalHelpers.timeSince(round.dateCreated),
                 };
                 next();
             } else {
@@ -168,7 +168,7 @@ exports.find_round = (req, res, next) => {
                     turn: round.turn,
                     action: round.action,
                     trump: round.trump,
-                    dateCreated: round.dateCreated,
+                    created: globalHelpers.timeSince(round.dateCreated),
                 };
                 next();
             } else {

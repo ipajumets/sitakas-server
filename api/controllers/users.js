@@ -5,17 +5,28 @@ let server = require("../../Server");
 const Users = require("../models/users");
 const Rooms = require("../models/rooms");
 
+// Helpers
+const globalHelpers = require("../../helpers/global");
+
 // Get all users
 exports.return_all = (req, res) => {
 
     Users.find({}).limit(50).sort({ $natural: -1 })
         .select("_id browser_id room_code name dateCreated")
         .exec()
-        .then(result => {
+        .then(docs => {
             res.status(201).json({
                 success: true,
-                count: result.length,
-                data: result,
+                count: docs.length,
+                data: docs.map(doc => {
+                    return {
+                        _id: doc._id,
+                        code: doc.room_code,
+                        uid: doc.browser_id,
+                        name: doc.name,
+                        created: globalHelpers.timeSince(doc.dateCreated),
+                    };
+                }),
             });
         })
         .catch(err => {
@@ -98,7 +109,7 @@ exports.check_if_player = (req, res, next) => {
                     _id: user._id,
                     browser_id: user.browser_id,
                     name: user.name,
-                    dateCreated: user.dateCreated,
+                    dateCreated: globalHelpers.timeSince(user.dateCreated),
                 };
                 next();
             } else {
@@ -182,7 +193,7 @@ exports.get_all_players_from_room = (req, res, next) => {
                 return {
                     uid: doc.browser_id,
                     name: doc.name,
-                    dateCreated: doc.dateCreated,
+                    dateCreated: globalHelpers.timeSince(doc.dateCreated),
                 };
             }),
             req.body.state = "game_on";

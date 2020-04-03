@@ -6,18 +6,29 @@ let Games = require("../models/games");
 
 // Helpers
 let helpers = require("../../helpers/games");
+let globalHelpers = require("../../helpers/global");
 
 // Get all games
 exports.return_all = (req, res) => {
 
     Games.find({}).limit(20).sort({ $natural: -1 })
-        .select("_id room_code players round hand dealer turn action trump dateCreated")
+        .select("_id room_code players round hand dealer dateCreated")
         .exec()
-        .then(result => {
+        .then(docs => {
             res.status(201).json({
                 success: true,
-                count: result.length,
-                data: result,
+                count: docs.length,
+                data: docs.map(doc => {
+                    return {
+                        _id: doc._id,
+                        code: doc.room_code,
+                        round: doc.round,
+                        hand: doc.hand,
+                        dealer: doc.dealer,
+                        players: doc.players,
+                        created: globalHelpers.timeSince(doc.dateCreated),
+                    };
+                }),
             });
         })
         .catch(err => {
@@ -45,7 +56,7 @@ exports.get_a_game = (req, res, next) => {
                     hand: game.hand,
                     dealer: game.dealer,
                     isOver: game.isOver,
-                    dateCreated: game.dateCreated,
+                    dateCreated: globalHelpers.timeSince(game.dateCreated),
                 });
             } else {
                 res.status(201).json({
@@ -75,7 +86,7 @@ exports.get_game = (req, res, next) => {
                     hand: game.hand,
                     dealer: game.dealer,
                     isOver: game.isOver,
-                    dateCreated: game.dateCreated,
+                    dateCreated: globalHelpers.timeSince(game.dateCreated),
                 };
                 next();
             } else {
@@ -132,7 +143,6 @@ exports.create_game = (req, res, next) => {
             req.body.hand = 1,
             req.body.turn = req.body.players[1].uid,
             req.body.action = "guess";
-            console.log("Mäng tehtud");
             return next();
         })
         .catch(err => {
@@ -190,7 +200,7 @@ exports.find_game = (req, res, next) => {
                     round: game.round,
                     hand: game.hand,
                     dealer: game.dealer,
-                    dateCreated: game.dateCreated,
+                    dateCreated: globalHelpers.timeSince(game.dateCreated),
                 };
                 next();
             } else {
