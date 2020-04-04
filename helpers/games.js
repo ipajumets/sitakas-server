@@ -1,10 +1,3 @@
-// Get random image for profile
-exports.getRandomImage = (images) => {
-
-    return images[Math.floor(Math.random() * images.length)].image;
- 
-}
-
 // Sum player points after round ends
 exports.sumPoints = (results, players) => {
 

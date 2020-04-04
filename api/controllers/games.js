@@ -132,24 +132,24 @@ exports.create_game = (req, res, next) => {
 
     const players = req.body.players.map((player) => {
 
-        console.log(players_images.length);
-
-        let image = helpers.getRandomImage(players_images);
+        let random = players_images[Math.floor(Math.random() * players_images.length)];
 
         let p = {
             uid: player.uid,
-            image: image,
+            image: random.image,
             name: player.name,
             points: 0,
         };
 
-        players_images.filter((_, index) => {
-            return index !== image.index;
-        }).map((item, i) => {
+        let new_pack = players_images.filter((_, index) => {
+            return index !== random.index;
+        });
+        
+        players_images = new_pack.map((item, index) => {
             return {
-                index: i,
                 ...item,
-            }
+                index: index,
+            };
         });
 
         return p;
