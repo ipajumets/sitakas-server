@@ -132,6 +132,8 @@ exports.create_game = (req, res, next) => {
 
     const players = req.body.players.map((player) => {
 
+        console.log(players_images.length);
+
         let image = helpers.getRandomImage(players_images);
 
         let p = {
@@ -143,10 +145,15 @@ exports.create_game = (req, res, next) => {
 
         players_images.filter((_, index) => {
             return index !== image.index;
+        }).map((item, i) => {
+            return {
+                index: i,
+                ...item,
+            }
         });
 
         return p;
-        
+
     });
 
     let game = new Games({
