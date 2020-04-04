@@ -609,8 +609,7 @@ exports.trumps = [
     },
 ];
 
-// Profile images
-exports.images_1_player = [
+exports.players_images = [
     {
         name: "Aivar Kuusmaa",
         image: "https://i.imgur.com/y4dxRW3.jpg",
@@ -638,10 +637,7 @@ exports.images_1_player = [
     {
         name: "Erik Keedus",
         image: "https://i.imgur.com/vuXmYQZ.jpg",
-    }
-];
-
-exports.images_2_player = [
+    },
     {
         name: "Tanel Sokk",
         image: "https://i.imgur.com/XLCfrQv.jpg",
@@ -666,9 +662,6 @@ exports.images_2_player = [
         name: "Rait Laane",
         image: "https://i.imgur.com/NSkLM3r.jpg",
     },
-];
-
-exports.images_3_player = [
     {
         name: "Silver Leppik",
         image: "https://i.imgur.com/JpbSgZt.jpg",
@@ -697,9 +690,6 @@ exports.images_3_player = [
         name: "Indrek Kajupank",
         image: "https://i.imgur.com/vPIw9ui.jpg",
     },
-];
-
-exports.images_4_player = [
     {
         name: "Martin Paasoja",
         image: "https://i.imgur.com/x1XUDaa.jpg",
@@ -728,9 +718,6 @@ exports.images_4_player = [
         name: "Andre Pärn",
         image: "https://i.imgur.com/xVGNr6A.jpg",
     },
-];
-
-exports.images_5_player = [
     {
         name: "Heigo Erm",
         image: "https://i.imgur.com/SckWirP.jpg",
@@ -759,9 +746,6 @@ exports.images_5_player = [
         name: "Siim Vene",
         image: "https://i.imgur.com/hSmwE9Q.jpg",
     },
-];
-
-exports.images_6_player = [
     {
         name: "Kristjan Makke",
         image: "https://i.imgur.com/tJ57Fx3.jpg",

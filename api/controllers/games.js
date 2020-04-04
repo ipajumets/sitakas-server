@@ -4,6 +4,9 @@ let server = require("../../Server");
 // Models
 let Games = require("../models/games");
 
+// Constants
+let constants = require("../../constants");
+
 // Helpers
 let helpers = require("../../helpers/games");
 let globalHelpers = require("../../helpers/global");
@@ -119,17 +122,37 @@ exports.set_next_turn = (req, res, next) => {
 // Create new game
 exports.create_game = (req, res, next) => {
 
+    let players_images;
+    players_images = constants.players_images.map((item, index) => {
+        return {
+            index: index,
+            ...item,
+        };
+    });
+
+    const players = req.body.players.map((player) => {
+
+        let image = helpers.getRandomImage(players_images);
+
+        let p = {
+            uid: player.uid,
+            image: image,
+            name: player.name,
+            points: 0,
+        };
+
+        players_images.filter((_, index) => {
+            return index !== image.index;
+        });
+
+        return p;
+        
+    });
+
     let game = new Games({
         _id: new mongoose.Types.ObjectId(),
         room_code: req.params.code,
-        players: req.body.players.map((player, index) => {
-            return {
-                uid: player.uid,
-                image: helpers.getRandomImage(index),
-                name: player.name,
-                points: 0,
-            };
-        }),
+        players: players,
         round: 1,
         hand: 1,
         dealer: req.body.players[0].uid,
