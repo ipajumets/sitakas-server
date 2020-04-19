@@ -6,6 +6,8 @@ const roomSchema = mongoose.Schema({
     host_browser_id: { type: String, required: true },
     state: { type: String, required: true },
     dateCreated: { type: Date, required: true },
+    privacy: { type: String, required: true },
+    maxPlayers: { type: Number, required: true },
 });
 
 module.exports = mongoose.model("Rooms", roomSchema);

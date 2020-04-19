@@ -12,7 +12,7 @@ const globalHelpers = require("../../helpers/global");
 exports.return_all = (req, res) => {
 
     Users.find({}).limit(50).sort({ $natural: -1 })
-        .select("_id browser_id room_code name dateCreated")
+        .select("_id browser_id room_code name dateCreated isReady")
         .exec()
         .then(docs => {
             res.status(201).json({
@@ -25,6 +25,7 @@ exports.return_all = (req, res) => {
                         uid: doc.browser_id,
                         name: doc.name,
                         created: globalHelpers.timeSince(doc.dateCreated),
+                        isReady: doc.isReady,
                     };
                 }),
             });
@@ -38,6 +39,36 @@ exports.return_all = (req, res) => {
 
 }
 
+exports.check_max_players = (req, res, next) => {
+
+    Users.find({ room_code: req.body.code }, (err, users) => {
+        if (err) {
+            return res.status(500).json({
+                success: false,
+                error: err,
+            });
+        }
+        Rooms.findOne({ code: req.body.code }, (err, room) => {
+            if (err) {
+                return res.status(500).json({
+                    success: false,
+                    error: err,
+                });
+            }
+
+            if (room.maxPlayers === users.length) {
+                return res.status(201).json({
+                    exceeded: true,
+                });
+            } else {
+                next();
+            }
+
+        });
+    });
+
+}
+
 // Join room
 exports.join_room = (req, res) => {
 
@@ -47,19 +78,21 @@ exports.join_room = (req, res) => {
         room_code: req.body.code,
         name: req.body.name,
         dateCreated: new Date().toISOString(),
+        isReady: false,
     });
 
     user.save()
         .then(added => {
 
             Users.find({ room_code: req.body.code })
-                .select("_id browser_id room_code name dateCreated")
+                .select("_id browser_id room_code name dateCreated isReady")
                 .exec()
                 .then(players => {
 
                     server.io.emit(`${req.body.code}_joined`, {
                         data: added,
                     });
+                    server.io.emit("refresh_public_rooms_list");
 
                     res.status(201).json({
                         success: true,
@@ -86,6 +119,9 @@ exports.leave_room = (req, res, next) => {
     Users.deleteOne({ browser_id: req.body.id, room_code: req.params.code })
         .exec()
         .then(_ => {
+            setTimeout(() => {
+                server.io.emit("refresh_public_rooms_list");
+            }, 1000);
             next();
         })
         .catch(err => {
@@ -101,7 +137,7 @@ exports.leave_room = (req, res, next) => {
 exports.check_if_player = (req, res, next) => {
 
     Users.findOne({ room_code: req.params.code, browser_id: req.params.uid })
-        .select("_id browser_id room_code name dateCreated")
+        .select("_id browser_id room_code name dateCreated isReady")
         .exec()
         .then(user => {
             if (user) {
@@ -110,6 +146,7 @@ exports.check_if_player = (req, res, next) => {
                     browser_id: user.browser_id,
                     name: user.name,
                     dateCreated: globalHelpers.timeSince(user.dateCreated),
+                    isReady: user.isReady,
                 };
                 next();
             } else {
@@ -132,20 +169,20 @@ exports.check_if_player = (req, res, next) => {
 exports.check_my_waiting_status = (req, res) => {
 
     Rooms.findOne({ code: req.body.code })
-        .select("_id code host_browser_id state dateCreated")
+        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
         .exec()
         .then(room => {
 
             if (room) {
 
                 Users.findOne({ browser_id: req.body.id, room_code: req.body.code })
-                    .select("_id browser_id room_code name dateCreated")
+                    .select("_id browser_id room_code name dateCreated isReady")
                     .exec()
                     .then(doc => {
                         if (doc) {
 
                             Users.find({ room_code: req.body.code })
-                                .select("_id browser_id room_code name dateCreated")
+                                .select("_id browser_id room_code name dateCreated isReady")
                                 .exec()
                                 .then(players => {
 
@@ -186,7 +223,7 @@ exports.check_my_waiting_status = (req, res) => {
 exports.get_all_players_from_room = (req, res, next) => {
 
     Users.find({ room_code: req.params.code })
-        .select("_id browser_id name dateCreated")
+        .select("_id browser_id name dateCreated isReady")
         .exec()
         .then(docs => {
             req.body.players = docs.map(doc => {
@@ -194,6 +231,7 @@ exports.get_all_players_from_room = (req, res, next) => {
                     uid: doc.browser_id,
                     name: doc.name,
                     dateCreated: globalHelpers.timeSince(doc.dateCreated),
+                    isReady: doc.isReady,
                 };
             }),
             req.body.state = "game_on";
@@ -218,6 +256,40 @@ exports.delete_all_users = (req, res) => {
             res.status(201).json({
                 success: true,
             });
+        })  
+        .catch(err => console.log(err));
+
+}
+
+// Update readiness status
+exports.update_is_ready = (req, res) => {
+
+    Users.updateOne({ browser_id: req.params.uid, room_code: req.params.code }, { $set: { isReady: req.body.status } })
+        .exec()
+        .then(_ => {
+
+            Users.find({ room_code: req.params.code })
+                .select("_id browser_id name dateCreated isReady")
+                .exec()
+                .then(players => {
+
+                    server.io.emit(`${req.params.code}_player_status_updated`, {
+                        players: players.map(player => {
+                            return {
+                                uid: player.browser_id,
+                                name: player.name,
+                                dateCreated: globalHelpers.timeSince(player.dateCreated),
+                                isReady: player.isReady,
+                            };
+                        }),
+                    });
+
+                    res.status(201).json({
+                        success: true,
+                    });
+                })
+                .catch(err => console.log(err));
+
         })  
         .catch(err => console.log(err));
 

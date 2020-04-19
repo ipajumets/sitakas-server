@@ -173,6 +173,7 @@ exports.create_game = (req, res, next) => {
             req.body.hand = 1,
             req.body.turn = req.body.players[1].uid,
             req.body.action = "guess";
+            server.io.emit("refresh_public_rooms_list");
             return next();
         })
         .catch(err => {

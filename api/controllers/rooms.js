@@ -9,11 +9,16 @@ const Users = require("../models/users");
 const helpers = require("../../helpers/rooms");
 const globalHelpers = require("../../helpers/global");
 
+Date.prototype.addMinutes = function(minutes) {
+    this.setMinutes(this.getMinutes() + minutes);
+    return this;
+};
+
 // Get all rooms
 exports.return_all = (req, res) => {
 
     Rooms.find({}).limit(20).sort({ $natural: -1 })
-        .select("_id code host_browser_id state dateCreated")
+        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
         .exec()
         .then(docs => {
             res.status(201).json({
@@ -26,9 +31,71 @@ exports.return_all = (req, res) => {
                         host: doc.host_browser_id,
                         state: doc.state,
                         created: globalHelpers.timeSince(doc.dateCreated),
+                        privacy: doc.privacy,
+                        maxPlayers: doc.maxPlayers,
                     };
                 }),
             });
+        })
+        .catch(err => {
+            res.status(403).json({
+                success: false,
+                err: err,
+            });
+        });
+
+}
+
+let get_public_room_players = (room) => {
+
+    return Users.find({ room_code: room.code })
+        .select("_id name")
+        .exec()
+        .then(users => {
+            return {
+                _id: room._id,
+                code: room.code,
+                host: room.host_browser_id,
+                state: room.state,
+                created: globalHelpers.timeSince(room.dateCreated),
+                privacy: room.privacy,
+                maxPlayers: room.maxPlayers,
+                players: users.map(user => {
+                    return {
+                        _id: user._id,
+                        name: user.name,
+                    };
+                }),
+            };
+        })
+        .catch(err => {
+            console.log(err);
+            return {};
+        });
+
+}
+
+// Get all rooms
+exports.return_public_games = (req, res) => {
+
+    let now = new Date(),
+        limit = now.addMinutes(-45);
+
+    Rooms.find({ privacy: "public", state: "pre", dateCreated: { $gte: limit } }).sort({ $natural: -1 })
+        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
+        .exec()
+        .then(docs => {
+            let promises = docs.map(doc => {
+                return get_public_room_players(doc);
+            });
+            Promise.all(promises)   
+                .then(result => {
+                    res.status(201).json({
+                        success: true,
+                        count: result.length,
+                        rooms: result,
+                    });
+                });
         })
         .catch(err => {
             res.status(403).json({
@@ -43,7 +110,7 @@ exports.return_all = (req, res) => {
 exports.get_room_data = (req, res, next) => {
 
     Rooms.findOne({ code: req.params.code })
-        .select("_id code host_browser_id state dateCreated")
+        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
         .exec()
         .then(room => {
             if (room) {
@@ -53,6 +120,8 @@ exports.get_room_data = (req, res, next) => {
                     host_browser_id: room.host_browser_id,
                     state: room.state,
                     created: globalHelpers.timeSince(room.dateCreated),
+                    privacy: room.privacy,
+                    maxPlayers: room.maxPlayers,
                 };
                 next();
             } else {
@@ -173,6 +242,8 @@ exports.create_new_room = (req, res) => {
         host_browser_id: req.body.id,
         state: "pre",
         dateCreated: new Date().toISOString(),
+        privacy: "private",
+        maxPlayers: 4,
     });
 
     room.save()
@@ -202,5 +273,59 @@ exports.delete_all_rooms = (req, res) => {
             });
         })  
         .catch(err => console.log(err));
+
+}
+
+// Update room privacy
+exports.update_privacy = (req, res, next) =>  {
+
+    Rooms.updateOne({ code: req.params.code }, { $set: { privacy: req.body.privacy } })
+        .exec()
+        .then(_ => {
+
+            server.io.emit(`${req.params.code}_privacy_updated`, {
+                privacy: req.body.privacy,
+            });
+            server.io.emit("refresh_public_rooms_list");
+
+            res.status(201).json({
+                success: true,
+            });
+
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
+            });
+        });
+
+}
+
+// Update room max players
+exports.update_max_players = (req, res, next) =>  {
+
+    Rooms.updateOne({ code: req.params.code }, { $set: { maxPlayers: req.body.amount } })
+        .exec()
+        .then(_ => {
+
+            server.io.emit(`${req.params.code}_max_players_updated`, {
+                amount: req.body.amount,
+            });
+            server.io.emit("refresh_public_rooms_list");
+
+            res.status(201).json({
+                success: true,
+            });
+
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
+            });
+        });
 
 }

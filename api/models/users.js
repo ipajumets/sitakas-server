@@ -6,6 +6,7 @@ const userSchema = mongoose.Schema({
     room_code: { type: String, required: true },
     name: { type: String, required: true },
     dateCreated: { type: Date, required: true },
+    isReady: { type: Boolean, required: true },
 });
 
 module.exports = mongoose.model("Users", userSchema);
