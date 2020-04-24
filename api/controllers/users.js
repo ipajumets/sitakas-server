@@ -12,7 +12,7 @@ const globalHelpers = require("../../helpers/global");
 exports.return_all = (req, res) => {
 
     Users.find({}).limit(50).sort({ $natural: -1 })
-        .select("_id browser_id room_code name dateCreated isReady")
+        .select("_id browser_id room_code name dateCreated isReady socket active")
         .exec()
         .then(docs => {
             res.status(201).json({
@@ -26,6 +26,8 @@ exports.return_all = (req, res) => {
                         name: doc.name,
                         created: globalHelpers.timeSince(doc.dateCreated),
                         isReady: doc.isReady,
+                        socket: doc.socket,
+                        active: doc.active,
                     };
                 }),
             });
@@ -291,6 +293,81 @@ exports.update_is_ready = (req, res) => {
                 .catch(err => console.log(err));
 
         })  
+        .catch(err => console.log(err));
+
+}
+
+// Update socket and active status
+exports.update_socket = (data, sid, status) => {
+
+    Users.updateOne({ browser_id: data.uid, room_code: data.code }, { $set: { socket: sid, active: status } })
+        .exec()
+        .then(_ => {
+            Users.find({ room_code: data.code }, (err, users) => {
+                if (err) return err;
+                let connections = users.map(user => {
+                    return {
+                        _id: user._id,
+                        uid: user.browser_id,
+                        socket: user.socket,
+                        active: user.active,
+                    }
+                });
+                server.io.emit(`${data.code}_update_connections`, connections);
+            }); 
+        })
+        .catch(err => console.log(err));
+
+}
+
+// Update socket and active status
+exports.remove_socket = (sid) => {
+
+    Users.findOneAndUpdate({ socket: sid }, { $set: { socket: null, active: false } })
+        .exec()
+        .then(result => {
+            Users.find({ room_code: result.room_code }, (err, users) => {
+                if (err) return err;
+                let connections = users.map(user => {
+                    return {
+                        _id: user._id,
+                        uid: user.browser_id,
+                        socket: user.socket,
+                        active: user.active,
+                    }
+                });
+                server.io.emit(`${result.room_code}_update_connections`, connections);
+            });
+        })  
+        .catch(err => console.log(err));
+
+}
+
+exports.get_users_with_status = (req, res, next) => {
+
+    Users.find({ room_code: req.body.game.room_code })
+        .select("_id browser_id socket active")
+        .exec()
+        .then(users => {
+            if (users.length > 0) {
+                req.body.users = users.map(user => {
+                    return {
+                        _id: user._id,
+                        uid: user.browser_id,
+                        socket: user.socket,
+                        active: user.active,
+                    }
+                });
+                next();
+            } else {
+                res.status(201).json({
+                    room: req.body.room,
+                    user: req.body.user,
+                    game: req.body.game,
+                    users: null,
+                });
+            }
+        })
         .catch(err => console.log(err));
 
 }

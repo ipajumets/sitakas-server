@@ -7,6 +7,8 @@ const userSchema = mongoose.Schema({
     name: { type: String, required: true },
     dateCreated: { type: Date, required: true },
     isReady: { type: Boolean, required: true },
+    socket: { type: String },
+    active: { type: Boolean },
 });
 
 module.exports = mongoose.model("Users", userSchema);

@@ -55,6 +55,7 @@ exports.get_hand = (req, res, next) => {
                     room: req.body.room,
                     user: req.body.user,
                     game: req.body.game,
+                    users: req.body.users,
                     round: req.body.round,
                     hand: null,
                 });

@@ -121,6 +121,7 @@ exports.get_round = (req, res, next) => {
                     room: req.body.room,
                     user: req.body.user,
                     game: req.body.game,
+                    users: req.body.users,
                     round: null,
                 });
             }

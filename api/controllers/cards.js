@@ -120,6 +120,7 @@ exports.get_my_cards = (req, res) => {
                     round: gameOver ? req.body.game.round-1 : req.body.game.round,
                     over: gameOver,
                 },
+                users: req.body.users,
                 previousRound: req.body.previousRound,
                 round: req.body.round,
                 previousHand: req.body.previousHand,

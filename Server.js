@@ -4,6 +4,9 @@ let fs = require("fs")
 let app = require("./App");
 let socketIo  = require("socket.io");
 
+// Controllers
+let userController = require("./api/controllers/users");
+
 let count = 0;
 let port = 5000;
 let server;
@@ -37,7 +40,12 @@ io.sockets.on("connection", (socket) => {
     count++;
     io.sockets.emit("count", { count });
 
+    socket.on("set-active", (data) => {
+        userController.update_socket(data, socket.id, true);
+    });
+
     socket.on("disconnect", () => {
+        userController.remove_socket(socket.id);
         count--;
         io.sockets.emit("count", { count });
     });
