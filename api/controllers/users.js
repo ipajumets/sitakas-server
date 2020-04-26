@@ -326,18 +326,20 @@ exports.remove_socket = (sid) => {
     Users.findOneAndUpdate({ socket: sid }, { $set: { socket: null, active: false } })
         .exec()
         .then(result => {
-            Users.find({ room_code: result.room_code }, (err, users) => {
-                if (err) return err;
-                let connections = users.map(user => {
-                    return {
-                        _id: user._id,
-                        uid: user.browser_id,
-                        socket: user.socket,
-                        active: user.active,
-                    }
+            if (result) {
+                Users.find({ room_code: result.room_code }, (err, users) => {
+                    if (err) return err;
+                    let connections = users.map(user => {
+                        return {
+                            _id: user._id,
+                            uid: user.browser_id,
+                            socket: user.socket,
+                            active: user.active,
+                        }
+                    });
+                    server.io.emit(`${result.room_code}_update_connections`, connections);
                 });
-                server.io.emit(`${result.room_code}_update_connections`, connections);
-            });
+            }
         })  
         .catch(err => console.log(err));
 
