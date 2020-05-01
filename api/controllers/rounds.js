@@ -190,7 +190,7 @@ exports.find_round = (req, res, next) => {
 }
 
 // Add bet
-exports.add_bet = (req, res, next) => {
+exports.add_bet = (req, res) => {
 
     const bet = { uid: req.body.uid, won: 0, wins: req.body.wins },
         winsTotal = (req.body.round.results.reduce((a, b) => +a + +b.wins, 0))+req.body.wins,
