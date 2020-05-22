@@ -17,13 +17,23 @@ let handsHelpers = require("../../helpers/hands");
 // Get all hands
 exports.return_all = (req, res) => {
 
-    Hands.find({}).sort({ $natural: -1 }).limit(50)
+    Hands.find({}).sort({ $natural: -1 })
         .select("_id room_code round hand cards winner base")
         .exec()
         .then(hands => {
             res.status(201).json({
                 count: hands.length,
-                hands,
+                hands: hands.slice(0, 50).map(hand => {
+                    return {
+                        _id: hand._id,
+                        room_code: hand.room_code,
+                        round: hand.round,
+                        hand: hand.hand,
+                        cards: hand.cards,
+                        winner: hand.winner,
+                        base: hand.base,
+                    };
+                }),
             });
         })
         .catch(err => console.log(err));

@@ -11,13 +11,13 @@ const roundHelpers = require("../../helpers/rounds");
 // Get all rounds
 exports.return_all = (req, res) => {
 
-    Rounds.find({}).limit(50).sort({ $natural: -1 })
+    Rounds.find({}).sort({ $natural: -1 })
         .select("_id room_code round hand results turn action trump dateCreated")
         .exec()
         .then(rounds => {
             res.status(201).json({
                 count: rounds.length,
-                rounds: rounds.map(round => {
+                rounds: rounds.slice(0, 50).map(round => {
                     return {
                         _id: round._id,
                         room_code: round.room_code,

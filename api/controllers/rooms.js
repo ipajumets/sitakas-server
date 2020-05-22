@@ -17,14 +17,14 @@ Date.prototype.addMinutes = function(minutes) {
 // Get all rooms
 exports.return_all = (req, res) => {
 
-    Rooms.find({}).limit(20).sort({ $natural: -1 })
+    Rooms.find({}).sort({ $natural: -1 })
         .select("_id code host_browser_id state dateCreated privacy maxPlayers")
         .exec()
         .then(docs => {
             res.status(201).json({
                 success: true,
                 count: docs.length,
-                data: docs.map(doc => {
+                data: docs.slice(0, 20).map(doc => {
                     return {
                         _id: doc._id,
                         code: doc.code,
@@ -38,7 +38,7 @@ exports.return_all = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });
@@ -98,7 +98,7 @@ exports.return_public_games = (req, res) => {
                 });
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });
@@ -131,7 +131,7 @@ exports.get_room_data = (req, res, next) => {
             }
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });
@@ -180,7 +180,7 @@ exports.check_if_new_host_needed = (req, res, next) => {
             }   
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });
@@ -254,7 +254,7 @@ exports.create_new_room = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });

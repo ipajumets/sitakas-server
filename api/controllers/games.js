@@ -14,28 +14,28 @@ let globalHelpers = require("../../helpers/global");
 // Get all games
 exports.return_all = (req, res) => {
 
-    Games.find({}).limit(20).sort({ $natural: -1 })
+    Games.find({}).sort({ $natural: -1 })
         .select("_id room_code players round hand dealer dateCreated")
         .exec()
         .then(docs => {
             res.status(201).json({
                 success: true,
                 count: docs.length,
-                data: docs.map(doc => {
+                data: docs.slice(0, 20).map(doc => {
                     return {
                         _id: doc._id,
                         code: doc.room_code,
                         round: doc.round,
                         hand: doc.hand,
                         dealer: doc.dealer,
-                        players: doc.players,
+                        players: doc.players.map(player => player.name+", "+player.points),
                         created: globalHelpers.timeSince(doc.dateCreated),
                     };
                 }),
             });
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });

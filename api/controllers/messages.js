@@ -7,14 +7,14 @@ let Messages = require("../models/messages");
 // Get all messages
 exports.return_all = (req, res) => {
 
-    Messages.find({}).limit(20).sort({ $natural: -1 })
+    Messages.find({}).sort({ $natural: -1 })
         .select("_id rid uid name text created")
         .exec()
         .then(docs => {
             res.status(201).json({
                 success: true,
                 count: docs.length,
-                data: docs.map(doc => {
+                data: docs.slice(0, 50).map(doc => {
                     return {
                         _id: doc._id,
                         rid: doc.rid,
@@ -27,7 +27,7 @@ exports.return_all = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });
@@ -58,7 +58,7 @@ exports.return_all_room_messages = (req, res) => {
             });
         })
         .catch(err => {
-            res.status(403).json({
+            res.status(500).json({
                 success: false,
                 err: err,
             });
