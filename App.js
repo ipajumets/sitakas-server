@@ -14,7 +14,14 @@ let hands_router = require("./api/routes/hands");
 let cards_router = require("./api/routes/cards");
 let messages_router = require("./api/routes/messages");
 
-mongoose.connect("mongodb+srv://ipajumets:"+process.env.MONGO_PW+"@cluster0-pg1n6.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true });
+// mongoose.connect("mongodb+srv://ipajumets:"+process.env.MONGO_PW+"@cluster0-pg1n6.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true });
+
+/* Connect to MongoDB */
+mongoose.connect(`mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_SECRET}@${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DB}`, { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true })
+    .then(_ => {
+        console.log("Database connected!");
+    })
+    .catch(err => console.log(err));
 
 mongoose.Promise = global.Promise;
 
