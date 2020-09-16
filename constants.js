@@ -590,6 +590,19 @@ exports.deck_of_cards = [
     },
 ];
 
+exports.jokers = [
+    {
+        value: 15,
+        suit: "joker_red",
+        joker: true,
+    },
+    {
+        value: 15,
+        suit: "joker_black",
+        joker: true,
+    },
+];
+
 exports.trumps = [
     {
         value: 1,
@@ -769,5 +782,215 @@ exports.players_images = [
     {
         name: "Asko Paade",
         image: "https://i.imgur.com/0yEgh8S.jpg",
+    },
+];
+
+exports.football_players_images = [
+    {
+        image: "https://i.imgur.com/TO7BM0O.jpg",
+    },
+    {
+        image: "https://i.imgur.com/h3Yyhby.jpg",
+    },
+    {
+        image: "https://i.imgur.com/YQzmtxK.jpg",
+    },
+    {
+        image: "https://i.imgur.com/kUIq3vN.jpg",
+    },
+    {
+        image: "https://i.imgur.com/8ENfXMK.jpg",
+    },
+    {
+        image: "https://i.imgur.com/Ll6euQf.jpg",
+    },
+    {
+        image: "https://i.imgur.com/tV4of6B.jpg",
+    },
+    {
+        image: "https://i.imgur.com/YLBop73.jpg",
+    },
+    {
+        image: "https://i.imgur.com/DeeEYXU.jpg",
+    },
+    {
+        image: "https://i.imgur.com/S7TRo8Q.jpg",
+    },
+    {
+        image: "https://i.imgur.com/BeQAyVB.jpg",
+    },
+    {
+        image: "https://i.imgur.com/wb2kHw5.jpg",
+    },
+    {
+        image: "https://i.imgur.com/jmfnXzf.jpg",
+    },
+    {
+        image: "https://i.imgur.com/ydGdl4j.jpg",
+    },
+    {
+        image: "https://i.imgur.com/JIw5vfA.jpg",
+    },
+    {
+        image: "https://i.imgur.com/ZUGXnOF.jpg",
+    },
+    {
+        image: "https://i.imgur.com/sGO2alU.jpg",
+    },
+    {
+        image: "https://i.imgur.com/fzw071D.jpg",
+    },
+    {
+        image: "https://i.imgur.com/XAD2uu0.jpg",
+    },
+    {
+        image: "https://i.imgur.com/mWB8fYG.jpg",
+    },
+    {
+        image: "https://i.imgur.com/RLV1NI1.jpg",
+    },
+    {
+        image: "https://i.imgur.com/1wdzKVu.jpg",
+    },
+    {
+        image: "https://i.imgur.com/E6MSPTg.jpg",
+    },
+    {
+        image: "https://i.imgur.com/FvID3sz.jpg",
+    },
+    {
+        image: "https://i.imgur.com/goM2fan.jpg",
+    },
+    {
+        image: "https://i.imgur.com/Q0RWjOq.jpg",
+    },
+    {
+        image: "https://i.imgur.com/0E1WhDp.jpg",
+    },
+    {
+        image: "https://i.imgur.com/Hs58Z0z.jpg",
+    },
+    {
+        image: "https://i.imgur.com/aIKHypn.jpg",
+    },
+    {
+        image: "https://i.imgur.com/dJPziak.jpg",
+    },
+    {
+        image: "https://i.imgur.com/oiEevsu.jpg",
+    },
+    {
+        image: "https://i.imgur.com/PMgDSn7.jpg",
+    },
+    {
+        image: "https://i.imgur.com/8hQeKTh.jpg",
+    },
+    {
+        image: "https://i.imgur.com/5FRZZBz.jpg",
+    },
+    {
+        image: "https://i.imgur.com/cpFYdZv.jpg",
+    },
+    {
+        image: "https://i.imgur.com/i50AgoR.jpg",
+    },
+    {
+        image: "https://i.imgur.com/KStozua.jpg",
+    },
+    {
+        image: "https://i.imgur.com/2hwWizC.jpg",
+    },
+    {
+        image: "https://i.imgur.com/DfNu5Kz.jpg",
+    },
+    {
+        image: "https://i.imgur.com/TYoc1uc.jpg",
+    },
+    {
+        image: "https://i.imgur.com/xMTcdS9.jpg",
+    },
+    {
+        image: "https://i.imgur.com/P4UD6WD.jpg",
+    },
+    {
+        image: "https://i.imgur.com/Aj9DpYL.jpg",
+    },
+    {
+        image: "https://i.imgur.com/2D7CJPy.jpg",
+    },
+    {
+        image: "https://i.imgur.com/gJYzlZx.jpg",
+    },
+    {
+        image: "https://i.imgur.com/8y2PXOJ.jpg",
+    },
+    {
+        image: "https://i.imgur.com/ATfnvNN.jpg",
+    },
+    {
+        image: "https://i.imgur.com/rpDTsYN.jpg",
+    },
+    {
+        image: "https://i.imgur.com/dh3zWlU.jpg",
+    },
+    {
+        image: "https://i.imgur.com/YIEQMb1.jpg",
+    },
+    {
+        image: "https://i.imgur.com/uXNfGVz.jpg",
+    },
+    {
+        image: "https://i.imgur.com/3WLbGHq.jpg",
+    },
+    {
+        image: "https://i.imgur.com/m7x1rR0.jpg",
+    },
+    {
+        image: "https://i.imgur.com/klqZK5K.jpg",
+    },
+    {
+        image: "https://i.imgur.com/7UlgFkn.jpg",
+    },
+    {
+        image: "https://i.imgur.com/Ovuru5k.jpg",
+    },
+    {
+        image: "https://i.imgur.com/4OPyLKg.jpg",
+    },
+    {
+        image: "https://i.imgur.com/varz70q.jpg",
+    },
+    {
+        image: "https://i.imgur.com/kGX9wRm.jpg",
+    },
+    {
+        image: "https://i.imgur.com/FlvboUQ.jpg",
+    },
+    {
+        image: "https://i.imgur.com/xLcO6k4.jpg",
+    },
+    {
+        image: "https://i.imgur.com/r7puH0u.jpg",
+    },
+    {
+        image: "https://i.imgur.com/WIa5JcI.jpg",
+    },
+    {
+        image: "https://i.imgur.com/CEdiYCQ.jpg",
+    },
+    {
+        image: "https://i.imgur.com/5Kj1UyD.jpg",
+    },
+    {
+        image: "https://i.imgur.com/WYgWwhN.jpg",
+    },
+    {
+        image: "https://i.imgur.com/FOVNNAF.jpg",
+    },
+    {
+        image: "https://i.imgur.com/k8Na1wW.jpg",
+    },
+    {
+        image: "https://i.imgur.com/YO81jNH.jpg",
     },
 ];

@@ -45,6 +45,8 @@ exports.divide_cards = (req, res, next) => {
         deck_of_cards = constants.deck_of_cards,
         rounds = globalHelpers.getGameRoundsStructure(req.body.players.length);
 
+    if (req.body.jokers) deck_of_cards = [...deck_of_cards, ...constants.jokers];
+
     const promises = req.body.players.map(player => {
 
         let result = cardsHelpers.shuffle(deck_of_cards, req.body.round, rounds);

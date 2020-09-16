@@ -5,7 +5,7 @@ const handsSchema = mongoose.Schema({
     room_code: { type: String, required: true },
     round: { type: Number, required: true },
     hand: { type: Number, required: true },
-    cards: { type: [{ uid: String, value: Number, suit: String }], required: true },
+    cards: { type: [{ uid: String, value: Number, suit: String, isHighest: Boolean }], required: true },
     base: { type: { uid: String, value: Number, suit: String } },
     winner: { type: { uid: String, value: Number, suit: String } },
 });

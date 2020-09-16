@@ -3,6 +3,7 @@ let server = require("../../Server");
 
 // Models
 let Games = require("../models/games");
+let Rooms = require("../models/rooms");
 
 // Constants
 let constants = require("../../constants");
@@ -15,7 +16,7 @@ let globalHelpers = require("../../helpers/global");
 exports.return_all = (req, res) => {
 
     Games.find({}).sort({ $natural: -1 })
-        .select("_id room_code players round hand dealer dateCreated")
+        .select("_id room_code players jokers round hand dealer dateCreated")
         .exec()
         .then(docs => {
             res.status(201).json({
@@ -29,6 +30,7 @@ exports.return_all = (req, res) => {
                         hand: doc.hand,
                         dealer: doc.dealer,
                         players: doc.players.map(player => player.name+", "+player.points),
+                        jokers: doc.jokers,
                         created: globalHelpers.timeSince(doc.dateCreated),
                     };
                 }),
@@ -47,7 +49,7 @@ exports.return_all = (req, res) => {
 exports.get_a_game = (req, res, next) => {
 
     Games.findOne({ room_code: req.params.code })
-        .select("_id room_code players round hand dealer isOver dateCreated")
+        .select("_id room_code players jokers round hand dealer isOver dateCreated")
         .exec()
         .then(game => {
             if (game) {
@@ -55,6 +57,7 @@ exports.get_a_game = (req, res, next) => {
                     _id: game._id,
                     room_code: game.room_code,
                     players: game.players,
+                    jokers: game.jokers,
                     round: game.round,
                     hand: game.hand,
                     dealer: game.dealer,
@@ -77,7 +80,7 @@ exports.get_a_game = (req, res, next) => {
 exports.get_game = (req, res, next) => {
 
     Games.findOne({ room_code: req.params.code })
-        .select("_id room_code players round hand dealer isOver dateCreated")
+        .select("_id room_code players jokers round hand dealer isOver dateCreated")
         .exec()
         .then(game => {
             if (game) {
@@ -85,6 +88,7 @@ exports.get_game = (req, res, next) => {
                     _id: game._id,
                     room_code: game.room_code,
                     players: game.players,
+                    jokers: game.jokers,
                     round: game.round,
                     hand: game.hand,
                     dealer: game.dealer,
@@ -122,67 +126,79 @@ exports.set_next_turn = (req, res, next) => {
 // Create new game
 exports.create_game = (req, res, next) => {
 
-    let players_images;
-    players_images = constants.players_images.map((item, index) => {
-        return {
-            index: index,
-            ...item,
-        };
-    });
+    Rooms.findOne({ code: req.params.code }, (err, doc) => {
 
-    const players = req.body.players.map((player) => {
 
-        let random = players_images[Math.floor(Math.random() * players_images.length)];
+        let players_images;
+        let pics = doc.sport === "basketball" ? constants.players_images : doc.sport === "football" ? constants.football_players_images : [...constants.players_images, ...constants.football_players_images];
 
-        let p = {
-            uid: player.uid,
-            image: random.image,
-            name: player.name,
-            points: 0,
-        };
-
-        let new_pack = players_images.filter((_, index) => {
-            return index !== random.index;
-        });
-        
-        players_images = new_pack.map((item, index) => {
+        players_images = pics.map((item, index) => {
             return {
-                ...item,
                 index: index,
+                ...item,
             };
         });
 
-        return p;
+        const players = req.body.players.map((player) => {
 
-    });
+            let random = players_images[Math.floor(Math.random() * players_images.length)];
 
-    let game = new Games({
-        _id: new mongoose.Types.ObjectId(),
-        room_code: req.params.code,
-        players: players,
-        round: 1,
-        hand: 1,
-        dealer: req.body.players[0].uid,
-        isOver: false,
-        dateCreated: new Date().toISOString(),
-    });
+            let p = {
+                uid: player.uid,
+                image: random.image,
+                name: player.name,
+                points: 0,
+            };
 
-    game.save()
-        .then(_ => {
-            req.body.round = 1,
-            req.body.hand = 1,
-            req.body.turn = req.body.players[1].uid,
-            req.body.action = "guess";
-            server.io.emit("refresh_public_rooms_list");
-            return next();
-        })
-        .catch(err => {
-            return res.status(500).json({
-                error: true,
-                message: "Midagi läks valesti, palun proovige uuesti!",
-                fullMessage: err,
+            let new_pack = players_images.filter((_, index) => {
+                return index !== random.index;
             });
+            
+            players_images = new_pack.map((item, index) => {
+                return {
+                    ...item,
+                    index: index,
+                };
+            });
+
+            return p;
+
         });
+
+
+        if (err) return res.status(500).json({ error: true, message: "Midagi läks valesti, palun proovige uuesti!", fullMessage: err, });
+
+        let game = new Games({
+            _id: new mongoose.Types.ObjectId(),
+            room_code: req.params.code,
+            players: players,
+            jokers: doc.jokers,
+            round: 1,
+            hand: 1,
+            dealer: req.body.players[0].uid,
+            isOver: false,
+            dateCreated: new Date().toISOString(),
+        });
+    
+        game.save()
+            .then(_ => {
+                req.body.round = 1,
+                req.body.hand = 1,
+                req.body.turn = req.body.players[1].uid,
+                req.body.action = "guess";
+                req.body.jokers = doc.jokers;
+                server.io.emit("refresh_public_rooms_list");
+                return next();
+            })
+            .catch(err => {
+                return res.status(500).json({
+                    error: true,
+                    message: "Midagi läks valesti, palun proovige uuesti!",
+                    fullMessage: err,
+                });
+            });
+
+    });
 
 }
 
@@ -220,7 +236,7 @@ exports.get_players = (req, res, next) => {
 exports.find_game = (req, res, next) => {
 
     Games.findOne({ room_code: req.params.code })
-        .select("_id room_code players round hand dealer dateCreated")
+        .select("_id room_code players jokers round hand dealer dateCreated")
         .exec()
         .then(game => {
             if (game) {
@@ -228,6 +244,7 @@ exports.find_game = (req, res, next) => {
                     _id: game._id,
                     room_code: game.room_code,
                     players: game.players,
+                    jokers: game.jokers,
                     round: game.round,
                     hand: game.hand,
                     dealer: game.dealer,
@@ -284,6 +301,7 @@ exports.update_game = (req, res, next) => {
                         dealer: nextDealer,
                     },
                     req.body.players = req.body.game.players,
+                    req.body.jokers = req.body.game.jokers,
                     req.body.round = req.body.game.round,
                     req.body.hand = 1;
                     req.body.turn = nextPlayer,

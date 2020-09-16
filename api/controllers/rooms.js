@@ -18,7 +18,7 @@ Date.prototype.addMinutes = function(minutes) {
 exports.return_all = (req, res) => {
 
     Rooms.find({}).sort({ $natural: -1 })
-        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
+        .select("_id code host_browser_id state dateCreated privacy jokers maxPlayers sport")
         .exec()
         .then(docs => {
             res.status(201).json({
@@ -32,7 +32,9 @@ exports.return_all = (req, res) => {
                         state: doc.state,
                         created: globalHelpers.timeSince(doc.dateCreated),
                         privacy: doc.privacy,
+                        jokers: doc.jokers,
                         maxPlayers: doc.maxPlayers,
+                        sport: doc.sport,
                     };
                 }),
             });
@@ -57,8 +59,9 @@ let get_public_room_players = (room) => {
                 code: room.code,
                 host: room.host_browser_id,
                 state: room.state,
-                created: globalHelpers.timeSince(room.dateCreated),
+                created: room.dateCreated,
                 privacy: room.privacy,
+                jokers: room.jokers,
                 maxPlayers: room.maxPlayers,
                 players: users.map(user => {
                     return {
@@ -66,6 +69,7 @@ let get_public_room_players = (room) => {
                         name: user.name,
                     };
                 }),
+                sport: room.sport,
             };
         })
         .catch(err => {
@@ -82,7 +86,7 @@ exports.return_public_games = (req, res) => {
         limit = now.addMinutes(-45);
 
     Rooms.find({ privacy: "public", state: "pre", dateCreated: { $gte: limit } }).sort({ $natural: -1 })
-        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
+        .select("_id code host_browser_id state dateCreated privacy jokers maxPlayers sport")
         .exec()
         .then(docs => {
             let promises = docs.map(doc => {
@@ -110,7 +114,7 @@ exports.return_public_games = (req, res) => {
 exports.get_room_data = (req, res, next) => {
 
     Rooms.findOne({ code: req.params.code })
-        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
+        .select("_id code host_browser_id state dateCreated privacy jokers maxPlayers sport")
         .exec()
         .then(room => {
             if (room) {
@@ -121,7 +125,9 @@ exports.get_room_data = (req, res, next) => {
                     state: room.state,
                     created: globalHelpers.timeSince(room.dateCreated),
                     privacy: room.privacy,
+                    jokers: room.jokers,
                     maxPlayers: room.maxPlayers,
+                    sport: room.sport,
                 };
                 next();
             } else {
@@ -243,7 +249,9 @@ exports.create_new_room = (req, res) => {
         state: "pre",
         dateCreated: new Date().toISOString(),
         privacy: "private",
+        jokers: false,
         maxPlayers: 4,
+        sport: "basketball",
     });
 
     room.save()
@@ -277,7 +285,7 @@ exports.delete_all_rooms = (req, res) => {
 }
 
 // Update room privacy
-exports.update_privacy = (req, res, next) =>  {
+exports.update_privacy = (req, res) =>  {
 
     Rooms.updateOne({ code: req.params.code }, { $set: { privacy: req.body.privacy } })
         .exec()
@@ -285,6 +293,33 @@ exports.update_privacy = (req, res, next) =>  {
 
             server.io.emit(`${req.params.code}_privacy_updated`, {
                 privacy: req.body.privacy,
+            });
+            server.io.emit("refresh_public_rooms_list");
+
+            res.status(201).json({
+                success: true,
+            });
+
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
+            });
+        });
+
+}
+
+// Update room jokers
+exports.update_jokers = (req, res) =>  {
+
+    Rooms.updateOne({ code: req.params.code }, { $set: { jokers: req.body.jokers } })
+        .exec()
+        .then(_ => { 
+
+            server.io.emit(`${req.params.code}_jokers_updated`, {
+                jokers: req.body.jokers,
             });
             server.io.emit("refresh_public_rooms_list");
 
@@ -312,6 +347,33 @@ exports.update_max_players = (req, res, next) =>  {
 
             server.io.emit(`${req.params.code}_max_players_updated`, {
                 amount: req.body.amount,
+            });
+            server.io.emit("refresh_public_rooms_list");
+
+            res.status(201).json({
+                success: true,
+            });
+
+        })
+        .catch(err => {
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
+            });
+        });
+
+}
+
+// Update room sport
+exports.update_sport = (req, res, next) =>  {
+
+    Rooms.updateOne({ code: req.params.code }, { $set: { sport: req.body.sport } })
+        .exec()
+        .then(_ => {
+
+            server.io.emit(`${req.params.code}_sport_updated`, {
+                sport: req.body.sport,
             });
             server.io.emit("refresh_public_rooms_list");
 

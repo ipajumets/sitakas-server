@@ -13,6 +13,7 @@ let constants = require("../../constants");
 //  Helpers
 let globalHelpers = require("../../helpers/global");
 let handsHelpers = require("../../helpers/hands");
+const cards = require("../models/cards");
 
 // Get all hands
 exports.return_all = (req, res) => {
@@ -277,17 +278,20 @@ exports.add_card = (req, res, next) => {
     const firstCardOfTheHand = handsHelpers.firstCardOfTheHand(req.body.hand.cards);
     const lastCardOfTheHand = handsHelpers.lastCardOfTheHand(req.body.hand.cards, req.body.game.players);
     const winner = lastCardOfTheHand ? handsHelpers.determineWinner(req.body.round, req.body.hand, req.body.card) : null;
-    const update = firstCardOfTheHand ? { $set: { base: req.body.card }, $addToSet: { cards: req.body.card } } : lastCardOfTheHand ? { $set: { winner: winner }, $addToSet: { cards: req.body.card } } : { $addToSet: { cards: req.body.card } };
+    const update = handleUpdate(firstCardOfTheHand, lastCardOfTheHand, req.body.card, winner, req.body.hand.cards);
 
     Hands.updateOne({ room_code: req.body.hand.room_code, round: req.body.hand.round, hand: req.body.hand.hand }, update)
         .exec()
         .then(_ => {
+
+            let cards = [...req.body.hand.cards, req.body.card];
+
             req.body.firstCardOfTheHand = firstCardOfTheHand,
             req.body.lastCardOfTheHand = lastCardOfTheHand,
             req.body.hand = {
                 ...req.body.hand,
-                cards: [...req.body.hand.cards, req.body.card],
-                base: firstCardOfTheHand ? req.body.card : req.body.hand.base,
+                cards: cards,
+                base: handleBase(firstCardOfTheHand, req.body.card, cards, req.body.hand.base),
                 winner: winner,
             };
             server.io.emit(`${req.params.code}_update_hand`, req.body.hand);
@@ -314,5 +318,37 @@ exports.delete_all_hands = (req, res) => {
             });
         })  
         .catch(err => console.log(err));
+
+}
+
+const handleBase = (firstCardOfTheHand, card, cards, base) => {
+
+    if (base) return base;
+    if (firstCardOfTheHand && card.value !== 15) return card;
+    if (cards.length !== 0) return cards.filter(card => card.value !== 15)[0];
+
+    return null;
+
+}
+
+const handleUpdate = (firstCardOfTheHand, lastCardOfTheHand, card, winner, cards) => {
+
+    if (firstCardOfTheHand && card.value !== 15) {
+        return { $set: { base: card }, $addToSet: { cards: card } };
+    }
+
+    if (lastCardOfTheHand) {
+        return { $set: { winner: winner }, $addToSet: { cards: card } };
+    }
+
+    if (cards.length === 1 && cards[0].value === 15) {
+        return { $set: { base: card }, $addToSet: { cards: card } };
+    }
+
+    if (cards.length === 2 && cards[0].value === 15 && cards[1].value === 15) {
+        return { $set: { base: card }, $addToSet: { cards: card } };
+    }
+
+    return { $addToSet: { cards: card } };
 
 }

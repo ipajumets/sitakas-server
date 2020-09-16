@@ -7,7 +7,9 @@ const roomSchema = mongoose.Schema({
     state: { type: String, required: true },
     dateCreated: { type: Date, required: true },
     privacy: { type: String, required: true },
+    jokers: { type: Boolean, required: true },
     maxPlayers: { type: Number, required: true },
+    sport: { type: String, required: true },
 });
 
 module.exports = mongoose.model("Rooms", roomSchema);

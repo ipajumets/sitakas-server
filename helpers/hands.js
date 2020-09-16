@@ -44,6 +44,12 @@ exports.determineWinner = (round, hand, c) => {
         cards = [...hand.cards, c],
         base = hand.base;
 
+    let playersWithHighestJokers = cards.filter(card => card.isHighest);
+
+    if (playersWithHighestJokers.length !== 0) {
+        return playersWithHighestJokers[playersWithHighestJokers.length-1];
+    }
+
     let playersWithTrump = cards.filter(card => card.suit === trump.suit);
 
     if (playersWithTrump.length === 1) {
@@ -53,13 +59,19 @@ exports.determineWinner = (round, hand, c) => {
         return sorted[0];
     }
 
-    let playersWithBase = cards.filter(card => card.suit === base.suit);
+    if (!base.suit.includes("joker")) {
 
-    if (playersWithBase.length === 1) {
-        return playersWithBase[0];
-    } else if (playersWithBase.length > 1) {
-        let sorted = playersWithBase.sort((a, b) => b.value - a.value);
-        return sorted[0];
+        let playersWithBase = cards.filter(card => card.suit === base.suit);
+
+        if (playersWithBase.length === 1) {
+            return playersWithBase[0];
+        } else if (playersWithBase.length > 1) {
+            let sorted = playersWithBase.sort((a, b) => b.value - a.value);
+            return sorted[0];
+        }
+
+    } else {
+        return cards[cards.length-1];
     }
 
 }

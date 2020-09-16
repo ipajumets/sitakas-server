@@ -203,6 +203,7 @@ exports.add_bet = (req, res) => {
         return res.status(500).json({
             error: true,
             message: `${req.body.wins} ei saa pakkuda.`,
+            wins: req.body.wins,
         });
     }
 

@@ -11,7 +11,11 @@ router.post("/create-new-room", controller.create_new_room);
 
 router.post("/update-privacy/:code", controller.update_privacy);
 
+router.post("/update-jokers/:code", controller.update_jokers);
+
 router.post("/update-max-players/:code", controller.update_max_players);
+
+router.post("/update-sport/:code", controller.update_sport);
 
 router.delete("/delete-all", controller.delete_all_rooms);
 

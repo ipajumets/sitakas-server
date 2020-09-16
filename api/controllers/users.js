@@ -171,7 +171,7 @@ exports.check_if_player = (req, res, next) => {
 exports.check_my_waiting_status = (req, res) => {
 
     Rooms.findOne({ code: req.body.code })
-        .select("_id code host_browser_id state dateCreated privacy maxPlayers")
+        .select("_id code host_browser_id state dateCreated privacy jokers maxPlayers sport")
         .exec()
         .then(room => {
 
