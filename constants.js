@@ -993,4 +993,7 @@ exports.football_players_images = [
     {
         image: "https://i.imgur.com/YO81jNH.jpg",
     },
+    {
+        image: "https://i.imgur.com/nS8u5ak.jpg",
+    }
 ];
