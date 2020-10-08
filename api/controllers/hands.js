@@ -285,13 +285,14 @@ exports.add_card = (req, res, next) => {
         .then(_ => {
 
             let cards = [...req.body.hand.cards, req.body.card];
+            let base = handleBase(firstCardOfTheHand, req.body.card, cards, req.body.hand.base);
 
             req.body.firstCardOfTheHand = firstCardOfTheHand,
             req.body.lastCardOfTheHand = lastCardOfTheHand,
             req.body.hand = {
                 ...req.body.hand,
                 cards: cards,
-                base: handleBase(firstCardOfTheHand, req.body.card, cards, req.body.hand.base),
+                base: base,
                 winner: winner,
             };
             server.io.emit(`${req.params.code}_update_hand`, req.body.hand);
@@ -341,11 +342,11 @@ const handleUpdate = (firstCardOfTheHand, lastCardOfTheHand, card, winner, cards
         return { $set: { winner: winner }, $addToSet: { cards: card } };
     }
 
-    if (cards.length === 1 && cards[0].value === 15) {
+    if (cards.length === 1 && cards[0].value === 15 && card.value !== 15) {
         return { $set: { base: card }, $addToSet: { cards: card } };
     }
 
-    if (cards.length === 2 && cards[0].value === 15 && cards[1].value === 15) {
+    if (cards.length === 2 && cards[0].value === 15 && cards[1].value === 15 && card.value !== 15) {
         return { $set: { base: card }, $addToSet: { cards: card } };
     }
 
