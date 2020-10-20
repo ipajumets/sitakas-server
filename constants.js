@@ -445,20 +445,16 @@ exports.deck_of_cards = [
         suit: "hearts",
     },
     {
-        value: 7,
-        suit: "hearts",
-    },
-    {
-        value: 8,
-        suit: "hearts",
-    },
-    {
         value: 9,
         suit: "hearts",
     },
     {
         value: 10,
         suit: "hearts",
+    },
+    {
+        value: 7,
+        suit: "diamonds",
     },
     {
         value: 11,
@@ -472,9 +468,16 @@ exports.deck_of_cards = [
         value: 13,
         suit: "hearts",
     },
-
+    {
+        value: 10,
+        suit: "spades",
+    },
     {
         value: 14,
+        suit: "hearts",
+    },
+    {
+        value: 8,
         suit: "hearts",
     },
     {
@@ -482,12 +485,12 @@ exports.deck_of_cards = [
         suit: "diamonds",
     },
     {
-        value: 7,
+        value: 8,
         suit: "diamonds",
     },
     {
-        value: 8,
-        suit: "diamonds",
+        value: 9,
+        suit: "clubs",
     },
     {
         value: 9,
@@ -504,6 +507,10 @@ exports.deck_of_cards = [
     {
         value: 12,
         suit: "diamonds",
+    },
+    {
+        value: 14,
+        suit: "clubs",
     },
     {
         value: 13,
@@ -523,11 +530,11 @@ exports.deck_of_cards = [
         suit: "clubs",
     },
     {
-        value: 8,
-        suit: "clubs",
+        value: 14,
+        suit: "spades",
     },
     {
-        value: 9,
+        value: 8,
         suit: "clubs",
     },
     {
@@ -539,16 +546,15 @@ exports.deck_of_cards = [
         suit: "clubs",
     },
     {
+        value: 11,
+        suit: "spades",
+    },
+    {
         value: 12,
         suit: "clubs",
     },
     {
         value: 13,
-        suit: "clubs",
-    },
-
-    {
-        value: 14,
         suit: "clubs",
     },
     {
@@ -568,24 +574,15 @@ exports.deck_of_cards = [
         suit: "spades",
     },
     {
-        value: 10,
-        suit: "spades",
-    },
-    {
-        value: 11,
-        suit: "spades",
-    },
-    {
         value: 12,
         suit: "spades",
     },
     {
-        value: 13,
-        suit: "spades",
+        value: 7,
+        suit: "hearts",
     },
-
     {
-        value: 14,
+        value: 13,
         suit: "spades",
     },
 ];

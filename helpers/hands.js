@@ -59,7 +59,7 @@ exports.determineWinner = (round, hand, c) => {
         return sorted[0];
     }
 
-    if (!base.suit.includes("joker")) {
+    if (base && base.suit && !base.suit.includes("joker")) {
 
         let playersWithBase = cards.filter(card => card.suit === base.suit);
 
