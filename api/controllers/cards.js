@@ -154,3 +154,36 @@ exports.delete_all_cards = (req, res) => {
         .catch(err => console.log(err));
 
 }
+
+exports.jokers_count = (req, res) => {
+
+    Cards.find({ room_code: req.params.rid })
+        .select("_id uid not_active")
+        .exec()
+        .then(cards => {
+
+            let users = {};
+
+            cards.forEach(item => {
+
+                let jokers = item.not_active.filter(c => c.value === 15);
+
+                if (users[item.uid]) {
+                    users[item.uid] = jokers.length+users[item.uid];
+                } else {
+                    users[item.uid] = jokers.length;
+                }
+            });
+
+            return res.status(201).json(users);
+        })
+        .catch(err => {
+            console.log(err);
+            return res.status(500).json({
+                error: true,
+                message: "Midagi läks valesti, palun proovige uuesti!",
+                fullMessage: err,
+            });
+        });
+
+}

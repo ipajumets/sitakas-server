@@ -276,13 +276,9 @@ exports.find_hand = (req, res, next) => {
 exports.add_card = (req, res, next) => {
 
     const firstCardOfTheHand = handsHelpers.firstCardOfTheHand(req.body.hand.cards);
-    console.log("First card of the hand:", firstCardOfTheHand);
     const lastCardOfTheHand = handsHelpers.lastCardOfTheHand(req.body.hand.cards, req.body.game.players);
-    console.log("Last card of the hand:", lastCardOfTheHand);
     const winner = lastCardOfTheHand ? handsHelpers.determineWinner(req.body.round, req.body.hand, req.body.card) : null;
-    console.log("Winner:", winner);
     const update = handleUpdate(firstCardOfTheHand, lastCardOfTheHand, req.body.card, winner, req.body.hand.cards);
-    console.log("Update:", update);
 
     Hands.updateOne({ room_code: req.body.hand.room_code, round: req.body.hand.round, hand: req.body.hand.hand }, update)
         .exec()
@@ -300,6 +296,7 @@ exports.add_card = (req, res, next) => {
                 winner: winner,
             };
             server.io.emit(`${req.params.code}_update_hand`, req.body.hand);
+            if (req.body.card.value === 15) server.io.emit(`${req.params.code}_update_jokers_counter`, req.body.card.uid);
             next();
         })
         .catch(err => {
